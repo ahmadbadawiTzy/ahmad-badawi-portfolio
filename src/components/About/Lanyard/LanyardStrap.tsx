@@ -23,97 +23,104 @@ export const LanyardStrap: React.FC<LanyardStrapProps> = ({ geometryRef }) => {
 
   const strapTexture = useMemo(() => {
     const canvas = document.createElement('canvas');
-    canvas.width = 512;
+    canvas.width = 1024;
     canvas.height = 256;
     const sCtx = canvas.getContext('2d');
     if (!sCtx) return new THREE.CanvasTexture(canvas);
 
-    // Premium woven polyester base — deep charcoal
-    sCtx.fillStyle = '#1a1816';
-    sCtx.fillRect(0, 0, 512, 256);
+    const W = 1024;
+    const H = 256;
 
-    // Diagonal twill weave texture — subtle textile feel
-    sCtx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+    // Technical woven polyester base — deep matte charcoal
+    sCtx.fillStyle = '#161517';
+    sCtx.fillRect(0, 0, W, H);
+
+    // Diagonal twill weave micro-structure — subtle fabric feel
+    sCtx.strokeStyle = 'rgba(255, 255, 255, 0.028)';
     sCtx.lineWidth = 1;
-    for (let i = -256; i < 768; i += 6) {
+    for (let i = -H; i < W + H; i += 6) {
       sCtx.beginPath();
       sCtx.moveTo(i, 0);
-      sCtx.lineTo(i + 256, 256);
+      sCtx.lineTo(i + H, H);
       sCtx.stroke();
     }
 
-    // Cross-hatch micro fibers
-    sCtx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
-    sCtx.lineWidth = 0.5;
-    for (let i = -256; i < 768; i += 6) {
+    // Intersecting counter-weave for herringbone textile depth
+    sCtx.strokeStyle = 'rgba(0, 0, 0, 0.20)';
+    sCtx.lineWidth = 0.8;
+    for (let i = -H; i < W + H; i += 6) {
       sCtx.beginPath();
-      sCtx.moveTo(i, 256);
-      sCtx.lineTo(i + 256, 0);
+      sCtx.moveTo(i, H);
+      sCtx.lineTo(i + H, 0);
       sCtx.stroke();
     }
 
-    // Reinforced top edge
-    sCtx.fillStyle = '#131110';
-    sCtx.fillRect(0, 0, 512, 18);
+    // Reinforced selvedge hem edges
+    sCtx.fillStyle = '#0f0e10';
+    sCtx.fillRect(0, 0, W, 22);
+    sCtx.fillRect(0, H - 22, W, 22);
 
-    // Reinforced bottom edge
-    sCtx.fillRect(0, 238, 512, 18);
+    // Stitching helper: lockstitch with realistic thread highlight & drop-shadow
+    const drawLockStitch = (y: number, dash: number[]) => {
+      sCtx.save();
+      // Shadow
+      sCtx.strokeStyle = 'rgba(0, 0, 0, 0.6)';
+      sCtx.lineWidth = 1.8;
+      sCtx.setLineDash(dash);
+      sCtx.beginPath();
+      sCtx.moveTo(0, y + 1);
+      sCtx.lineTo(W, y + 1);
+      sCtx.stroke();
 
-    // Primary stitch line — top
-    sCtx.strokeStyle = 'rgba(250, 250, 249, 0.22)';
-    sCtx.lineWidth = 1.5;
-    sCtx.setLineDash([8, 5]);
-    sCtx.beginPath();
-    sCtx.moveTo(0, 26);
-    sCtx.lineTo(512, 26);
-    sCtx.stroke();
+      // Thread highlight
+      sCtx.strokeStyle = 'rgba(250, 250, 249, 0.38)';
+      sCtx.lineWidth = 1.4;
+      sCtx.beginPath();
+      sCtx.moveTo(0, y);
+      sCtx.lineTo(W, y);
+      sCtx.stroke();
+      sCtx.restore();
+    };
 
-    // Secondary stitch line — top
-    sCtx.strokeStyle = 'rgba(250, 250, 249, 0.10)';
-    sCtx.lineWidth = 1;
-    sCtx.beginPath();
-    sCtx.moveTo(0, 34);
-    sCtx.lineTo(512, 34);
-    sCtx.stroke();
+    // Double-needle edge stitching — top and bottom
+    drawLockStitch(28, [10, 6]);
+    drawLockStitch(H - 28, [10, 6]);
 
-    // Primary stitch line — bottom
-    sCtx.strokeStyle = 'rgba(250, 250, 249, 0.22)';
-    sCtx.lineWidth = 1.5;
-    sCtx.beginPath();
-    sCtx.moveTo(0, 222);
-    sCtx.lineTo(512, 222);
-    sCtx.stroke();
-
-    // Secondary stitch line — bottom
-    sCtx.strokeStyle = 'rgba(250, 250, 249, 0.10)';
-    sCtx.lineWidth = 1;
-    sCtx.beginPath();
-    sCtx.moveTo(0, 230);
-    sCtx.lineTo(512, 230);
-    sCtx.stroke();
-    sCtx.setLineDash([]);
-
-    // Swiss Red accent stripe — thin institutional mark
+    // Restrained Swiss Red accent pinstripe — razor-thin institutional mark
     sCtx.fillStyle = SWISS_RED;
-    sCtx.fillRect(0, 118, 512, 4);
-    sCtx.fillRect(0, 134, 512, 4);
+    sCtx.fillRect(0, H - 38, W, 3);
 
-    // Typographic pattern — name + role repeating
-    sCtx.fillStyle = 'rgba(250, 250, 249, 0.50)';
-    sCtx.font = '600 16px "IBM Plex Mono", monospace';
-
-    for (let x = 24; x < 512; x += 240) {
-      sCtx.fillText('AHMAD BADAWI', x, 90);
-      sCtx.fillText('SOFTWARE DEVELOPER', x, 162);
-    }
-
-    // Hairline separator between text blocks
-    sCtx.strokeStyle = 'rgba(250, 250, 249, 0.06)';
-    sCtx.lineWidth = 0.5;
+    // Subtle horizontal divider line
+    sCtx.strokeStyle = 'rgba(250, 250, 249, 0.05)';
+    sCtx.lineWidth = 1;
     sCtx.beginPath();
-    sCtx.moveTo(0, 108);
-    sCtx.lineTo(512, 108);
+    sCtx.moveTo(0, H / 2);
+    sCtx.lineTo(W, H / 2);
     sCtx.stroke();
+
+    // Clean, un-stretched technical typography (2 repeating segments per canvas)
+    const segmentWidth = W / 2; // 512px per repeat segment
+    for (let offset = 0; offset < W; offset += segmentWidth) {
+      // Primary name
+      sCtx.fillStyle = '#fafaf9';
+      sCtx.font = '600 24px "IBM Plex Mono", monospace';
+      sCtx.fillText('AHMAD BADAWI', offset + 32, H / 2 - 14);
+
+      // Title & ID
+      sCtx.fillStyle = 'rgba(250, 250, 249, 0.70)';
+      sCtx.font = '500 20px "IBM Plex Mono", monospace';
+      sCtx.fillText('SOFTWARE DEVELOPER', offset + 32, H / 2 + 30);
+
+      // Restrained red tag
+      sCtx.fillStyle = SWISS_RED;
+      sCtx.font = '500 16px "IBM Plex Mono", monospace';
+      sCtx.fillText('[0x7F]', offset + 330, H / 2 + 30);
+
+      // Micro registration tag
+      sCtx.fillStyle = 'rgba(250, 250, 249, 0.28)';
+      sCtx.font = '400 13px "IBM Plex Mono", monospace';
+      sCtx.fillText('ID: 2024-UBI', offset + 330, H / 2 - 14);
+    }
 
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = THREE.RepeatWrapping;

@@ -12,11 +12,16 @@ export const LanyardScene: React.FC<LanyardSceneProps> = ({
 }) => {
   return (
     <>
-      {/* Editorial 3-point lighting — restrained, asymmetric */}
-      <ambientLight color="#ffffff" intensity={0.6} />
-      <directionalLight color="#ffffff" intensity={1.3} position={[2, 4, 3]} />
-      <directionalLight color="#ffffff" intensity={0.35} position={[-2, 1, 2]} />
-      <directionalLight color="#ffffff" intensity={0.15} position={[0, 3, -2]} />
+      {/* Editorial Studio Lighting — Stripe precision & brushed metallic highlights */}
+      <ambientLight color="#ffffff" intensity={0.55} />
+      {/* Key light: Crisp directional light casting subtle specular highlights on card & clamp */}
+      <directionalLight color="#ffffff" intensity={1.5} position={[2.5, 4.5, 3.5]} />
+      {/* Rim light: Catches top metallic carabiner loop and card beveled edge */}
+      <directionalLight color="#f1f5f9" intensity={0.85} position={[-2.5, 3.2, -2.5]} />
+      {/* Fill light: Gentle bounce from below to prevent crushing shadow details */}
+      <directionalLight color="#ffffff" intensity={0.4} position={[-2.0, -1.0, 2.0]} />
+      {/* Overhead top glint: Highlights strap anchor and swivel fastener */}
+      <directionalLight color="#ffffff" intensity={0.3} position={[0, 4.0, 0.5]} />
 
       <Physics
         gravity={GRAVITY}

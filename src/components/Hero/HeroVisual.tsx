@@ -335,8 +335,8 @@ export const HeroVisual: React.FC = () => {
     let isDisposed = false;
     let animationId: number;
 
-    const width = container.clientWidth || 380;
-    const height = container.clientHeight || 508;
+    const width = container.clientWidth || 560;
+    const height = container.clientHeight || 315;
     const aspect = width / height;
 
     // 1. WebGL Renderer with transparent clear color
