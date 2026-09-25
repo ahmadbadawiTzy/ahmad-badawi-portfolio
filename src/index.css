@@ -1,0 +1,228 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Tailwind v4 Theme Tokens ─────────────────────────────────── */
+@theme {
+  /* Font families */
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  /* Max widths */
+  --max-width-prose: 60ch;
+  --max-width-prose-wide: 72ch;
+  --max-width-grid: 1200px;
+
+  /* Line heights */
+  --line-height-display: 1;
+  --line-height-heading: 1.15;
+
+  /* Letter spacing */
+  --letter-spacing-display: -0.02em;
+  --letter-spacing-label: 0.08em;
+
+  /* Swiss accent */
+  --color-swiss-red: #C8102E;
+}
+
+/* ─── Light Mode (default) ─────────────────────────────────────── */
+:root {
+  color-scheme: light dark;
+
+  /* Stone palette — light */
+  --color-bg:           #fafaf9;
+  --color-surface:      #f5f5f4;
+  --color-surface-2:    #e7e5e4;
+  --color-border:       #e7e5e4;
+  --color-border-light: #f5f5f4;
+  --color-text:         #1c1917;
+  --color-text-2:       rgba(28, 25, 23, 0.70);
+  --color-text-3:       rgba(28, 25, 23, 0.40);
+  --color-text-4:       rgba(28, 25, 23, 0.20);
+
+  /* Accent */
+  --color-accent:       #C8102E;
+  --color-accent-60:    rgba(200, 16, 46, 0.60);
+  --color-accent-20:    rgba(200, 16, 46, 0.20);
+  --color-accent-10:    rgba(200, 16, 46, 0.10);
+
+  /* Spacing base unit */
+  --space-unit: 8px;
+}
+
+/* ─── Dark Mode ────────────────────────────────────────────────── */
+.dark {
+  --color-bg:           #0c0a09;
+  --color-surface:      #1c1917;
+  --color-surface-2:    #292524;
+  --color-border:       #292524;
+  --color-border-light: #1c1917;
+  --color-text:         #fafaf9;
+  --color-text-2:       rgba(250, 250, 249, 0.70);
+  --color-text-3:       rgba(250, 250, 249, 0.40);
+  --color-text-4:       rgba(250, 250, 249, 0.20);
+}
+
+/* ─── Base Styles ──────────────────────────────────────────────── */
+html {
+  color-scheme: light dark;
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+/* ─── Typography Utilities ─────────────────────────────────────── */
+
+/* Display: 72–96px, light, tight tracking */
+.swiss-display {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 300;
+  line-height: var(--line-height-display);
+  letter-spacing: var(--letter-spacing-display);
+}
+
+/* H1: 48px, light, tight tracking */
+.swiss-h1 {
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  font-weight: 300;
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-display);
+}
+
+/* H2: 36px, light, tight tracking */
+.swiss-h2 {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: var(--letter-spacing-display);
+}
+
+/* H3: 24px, normal weight */
+.swiss-h3 {
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+/* H4: 18px, medium weight */
+.swiss-h4 {
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* Body: 16px, relaxed, max 60ch */
+.swiss-body {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.75;
+  max-width: var(--max-width-prose);
+}
+
+/* Small: 14px */
+.swiss-small {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.75;
+  max-width: var(--max-width-prose);
+}
+
+/* Caption: 12px, wide tracking */
+.swiss-caption {
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: var(--letter-spacing-label);
+}
+
+/* Label: 11px, medium weight, wide tracking */
+.swiss-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: var(--letter-spacing-label);
+}
+
+/* ─── Section Spacing ──────────────────────────────────────────── */
+.swiss-section {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  border-top: 1px solid var(--color-border);
+}
+
+@media (min-width: 768px) {
+  .swiss-section {
+    padding-top: 8rem;
+    padding-bottom: 8rem;
+  }
+}
+
+/* ─── Grid Container ───────────────────────────────────────────── */
+.swiss-grid {
+  width: 100%;
+  max-width: var(--max-width-grid);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+@media (min-width: 768px) {
+  .swiss-grid {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+/* ─── Geometric Decorations ────────────────────────────────────── */
+.swiss-rule {
+  width: 2rem;
+  height: 2px;
+  background-color: var(--color-text);
+}
+
+.swiss-rule-accent {
+  width: 2rem;
+  height: 2px;
+  background-color: var(--color-accent);
+}
+
+/* Section number watermark */
+.swiss-watermark {
+  position: absolute;
+  top: 0;
+  right: -2rem;
+  font-size: clamp(8rem, 20vw, 20rem);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--color-text-4);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ─── Text Hierarchy ───────────────────────────────────────────── */
+.swiss-text-primary   { color: var(--color-text); }
+.swiss-text-secondary { color: var(--color-text-2); }
+.swiss-text-tertiary  { color: var(--color-text-3); }
+.swiss-text-disabled  { color: var(--color-text-4); }
+
+/* ─── Surface Colors ───────────────────────────────────────────── */
+.swiss-bg           { background-color: var(--color-bg); }
+.swiss-surface      { background-color: var(--color-surface); }
+.swiss-surface-2    { background-color: var(--color-surface-2); }
+.swiss-border       { border-color: var(--color-border); }
