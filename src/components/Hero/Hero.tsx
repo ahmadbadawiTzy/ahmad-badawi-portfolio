@@ -33,104 +33,109 @@ export const Hero: React.FC = () => {
         01
       </div>
 
-      <div className="max-w-6xl mx-auto px-8 py-16 md:py-24 relative z-10">
-        <div className="grid grid-cols-12 gap-8 lg:gap-16 items-center">
-          
-          {/* Narrative & Information Architecture (Left / 7 columns) */}
-          <motion.div
-            style={{ opacity: contentOpacity }}
-            className="col-span-12 lg:col-span-7 flex flex-col justify-center"
-          >
-            {/* Section Index Marker */}
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-1.5 h-1.5 bg-[#C8102E]"></span>
-              <span className="text-[11px] font-mono tracking-widest uppercase text-stone-900/60 dark:text-stone-50/60">
-                {t.hero.sectionNum}
-              </span>
-            </div>
+      <div className="max-w-5xl mx-auto px-6 sm:px-8 py-14 sm:py-20 md:py-24 relative z-10 flex flex-col items-center text-center">
+        
+        {/* Top Header Hierarchy: Index Marker, Accent, Name & Primary Role */}
+        <motion.div
+          style={{ opacity: contentOpacity }}
+          className="w-full flex flex-col items-center justify-center max-w-3xl"
+        >
+          {/* Section Index Marker */}
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <span className="w-1.5 h-1.5 bg-[#C8102E]"></span>
+            <span className="text-[11px] font-mono tracking-widest uppercase text-stone-900/60 dark:text-stone-50/60">
+              {t.hero.sectionNum}
+            </span>
+          </div>
 
-            {/* Swiss Accent Rule */}
-            <div className="w-10 h-0.5 bg-[#C8102E] mb-6"></div>
+          {/* Swiss Accent Rule */}
+          <div className="w-10 h-0.5 bg-[#C8102E] mb-5"></div>
 
-            {/* Primary Name Display */}
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-light tracking-tight uppercase text-stone-900 dark:text-stone-50 leading-none">
-              {t.hero.name}
-            </h1>
+          {/* Primary Name Display */}
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-light tracking-tight uppercase text-stone-900 dark:text-stone-50 leading-none">
+            {t.hero.name}
+          </h1>
 
-            {/* Primary Role */}
-            <p className="text-xs sm:text-sm font-mono tracking-widest uppercase text-stone-900/60 dark:text-stone-50/60 mt-3">
-              {t.hero.role}
-            </p>
+          {/* Primary Role: SOFTWARE DEVELOPER */}
+          <p className="text-xs sm:text-sm md:text-base font-mono tracking-[0.25em] uppercase text-stone-900/70 dark:text-stone-50/70 mt-3 sm:mt-4">
+            {t.hero.role}
+          </p>
+        </motion.div>
 
-            {/* Engineering Statement */}
-            <p className="text-base sm:text-lg md:text-xl font-normal leading-relaxed text-stone-900/80 dark:text-stone-50/80 mt-6 max-w-[52ch] text-pretty">
-              &ldquo;{t.hero.statement}&rdquo;
-            </p>
+        {/* Absolute Focal Visual Center: Frameless Floating Portrait */}
+        <motion.div
+          style={{ y: photoY }}
+          className="w-full flex flex-col items-center justify-center my-6 sm:my-8 relative"
+        >
+          {/* Portrait Container: Frameless, borderless, seamless transparent blend */}
+          <div className="w-full max-w-[280px] sm:max-w-[340px] md:max-w-[390px] aspect-[896/1200] relative mx-auto">
+            <HeroVisual />
+          </div>
 
-            {/* Academic Credential & Coordinates */}
-            <div className="mt-6 pt-4 border-t border-stone-200 dark:border-stone-800 text-xs font-mono text-stone-900/60 dark:text-stone-50/60 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span className="text-stone-900 dark:text-stone-50 font-medium">
-                {t.hero.education}
-              </span>
-              <span>·</span>
-              <span className="tabular-nums">
-                {t.hero.period}
-              </span>
-              <span>·</span>
-              <span>
-                {t.hero.location}
-              </span>
-            </div>
+          {/* Interaction Metadata Hint */}
+          <div className="mt-3 text-center">
+            <span className="font-mono text-[10px] tracking-widest uppercase text-stone-900/40 dark:text-stone-50/40 select-none">
+              <span className="hidden sm:inline">[ {t.hero.interactionHint} ]</span>
+              <span className="inline sm:hidden">[ {t.hero.mobileInteractionHint || t.hero.interactionHint} ]</span>
+            </span>
+          </div>
+        </motion.div>
 
-            {/* Rectangular Swiss Action Buttons */}
-            <div className="flex flex-wrap items-center gap-4 mt-8">
-              <a
-                href="#work"
-                id="hero-cta-projects"
-                className="px-6 py-3.5 bg-[#C8102E] text-white text-xs font-mono font-medium tracking-widest uppercase hover:bg-[#C8102E]/90 active:scale-[0.98] transition-all rounded-none min-h-[44px] inline-flex items-center gap-2 cursor-pointer"
-              >
-                <span>{t.hero.viewWork}</span>
-                <ArrowDown size={14} />
-              </a>
+        {/* Supporting Hero Content: Statement, Credentials, CTAs, Core Stack */}
+        <motion.div
+          style={{ opacity: contentOpacity }}
+          className="w-full flex flex-col items-center justify-center max-w-2xl"
+        >
+          {/* Engineering Statement */}
+          <p className="text-base sm:text-lg md:text-xl font-normal leading-relaxed text-stone-900/80 dark:text-stone-50/80 max-w-[50ch] text-pretty">
+            &ldquo;{t.hero.statement}&rdquo;
+          </p>
 
-              <a
-                href="#contact"
-                id="hero-cta-contact"
-                className="px-6 py-3.5 border border-stone-200 dark:border-stone-800 text-stone-900 dark:text-stone-50 text-xs font-mono font-medium tracking-widest uppercase hover:border-stone-900 dark:hover:border-stone-50 transition-colors rounded-none min-h-[44px] inline-flex items-center gap-2 cursor-pointer"
-              >
-                <span>{t.hero.contact}</span>
-                <ArrowUpRight size={14} />
-              </a>
-            </div>
+          {/* Academic Credential & Coordinates */}
+          <div className="mt-6 pt-4 border-t border-stone-200 dark:border-stone-800 text-xs font-mono text-stone-900/60 dark:text-stone-50/60 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 w-full">
+            <span className="text-stone-900 dark:text-stone-50 font-medium">
+              {t.hero.education}
+            </span>
+            <span>·</span>
+            <span className="tabular-nums">
+              {t.hero.period}
+            </span>
+            <span>·</span>
+            <span>
+              {t.hero.location}
+            </span>
+          </div>
 
-            {/* Core Stack Strip */}
-            <div className="mt-8 pt-4 border-t border-stone-200 dark:border-stone-800 flex flex-wrap items-center gap-3 text-[11px] font-mono text-stone-900/60 dark:text-stone-50/60">
-              <span className="text-stone-900/40 dark:text-stone-50/40">{t.hero.coreStackLabel}</span>
-              <span className="text-stone-900 dark:text-stone-50 font-medium tracking-wider">
-                PYTHON · TYPESCRIPT · REACT · NODE.JS
-              </span>
-            </div>
-          </motion.div>
+          {/* Rectangular Swiss Action Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
+            <a
+              href="#work"
+              id="hero-cta-projects"
+              className="px-6 py-3.5 bg-[#C8102E] text-white text-xs font-mono font-medium tracking-widest uppercase hover:bg-[#C8102E]/90 active:scale-[0.98] transition-all rounded-none min-h-[44px] inline-flex items-center gap-2 cursor-pointer"
+            >
+              <span>{t.hero.viewWork}</span>
+              <ArrowDown size={14} />
+            </a>
 
-          {/* Focal Visual Zone: Liquid Reveal & Hover Swap Portrait (Right / 5 columns) */}
-          <motion.div
-            style={{ y: photoY }}
-            className="col-span-12 lg:col-span-5 flex flex-col items-center justify-center relative"
-          >
-            <div className="w-full max-w-[min(340px,85vw)] sm:max-w-[380px] md:max-w-[420px] lg:max-w-full aspect-[896/1200] border border-stone-200 dark:border-stone-800 bg-stone-100 dark:bg-stone-900 relative overflow-hidden">
-              <HeroVisual />
-            </div>
+            <a
+              href="#contact"
+              id="hero-cta-contact"
+              className="px-6 py-3.5 border border-stone-200 dark:border-stone-800 text-stone-900 dark:text-stone-50 text-xs font-mono font-medium tracking-widest uppercase hover:border-stone-900 dark:hover:border-stone-50 transition-colors rounded-none min-h-[44px] inline-flex items-center gap-2 cursor-pointer"
+            >
+              <span>{t.hero.contact}</span>
+              <ArrowUpRight size={14} />
+            </a>
+          </div>
 
-            {/* Interaction Metadata Hint */}
-            <div className="mt-3 text-center">
-              <span className="font-mono text-[10px] tracking-widest uppercase text-stone-900/40 dark:text-stone-50/40 select-none">
-                <span className="hidden sm:inline">[ {t.hero.interactionHint} ]</span>
-                <span className="inline sm:hidden">[ {t.hero.mobileInteractionHint || t.hero.interactionHint} ]</span>
-              </span>
-            </div>
-          </motion.div>
+          {/* Core Stack Strip */}
+          <div className="mt-8 pt-4 border-t border-stone-200 dark:border-stone-800 flex flex-wrap items-center justify-center gap-3 text-[11px] font-mono text-stone-900/60 dark:text-stone-50/60 w-full">
+            <span className="text-stone-900/40 dark:text-stone-50/40">{t.hero.coreStackLabel}</span>
+            <span className="text-stone-900 dark:text-stone-50 font-medium tracking-wider">
+              PYTHON · TYPESCRIPT · REACT · NODE.JS
+            </span>
+          </div>
+        </motion.div>
 
-        </div>
       </div>
     </section>
   );
