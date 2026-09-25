@@ -124,7 +124,8 @@ export const Hero: React.FC = () => {
             {/* Interaction Metadata Hint */}
             <div className="mt-3 text-center">
               <span className="font-mono text-[10px] tracking-widest uppercase text-stone-900/40 dark:text-stone-50/40 select-none">
-                [ {t.hero.interactionHint} ]
+                <span className="hidden sm:inline">[ {t.hero.interactionHint} ]</span>
+                <span className="inline sm:hidden">[ {t.hero.mobileInteractionHint || t.hero.interactionHint} ]</span>
               </span>
             </div>
           </motion.div>

@@ -41,6 +41,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         navEntries.length > 0 &&
         (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
 
+      if (typeof window !== 'undefined' && window.location.search.includes('nosplash')) {
+        finishSplash();
+        return;
+      }
+
       if (isReload) {
         sessionStorage.removeItem('ab_splash_shown');
       } else {
