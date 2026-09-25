@@ -68,7 +68,7 @@ export const Hero: React.FC = () => {
           className="w-full flex flex-col items-center justify-center my-6 sm:my-8 relative"
         >
           {/* Portrait Container: Frameless, borderless, seamless transparent blend */}
-          <div className="w-full max-w-[280px] sm:max-w-[340px] md:max-w-[390px] aspect-[896/1200] relative mx-auto">
+          <div className="w-full max-w-[280px] sm:max-w-[340px] md:max-w-[380px] lg:max-w-[420px] aspect-[896/1200] relative mx-auto">
             <HeroVisual />
           </div>
 
@@ -135,7 +135,6 @@ export const Hero: React.FC = () => {
             </span>
           </div>
         </motion.div>
-
       </div>
     </section>
   );
