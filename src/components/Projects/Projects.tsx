@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { PROJECTS } from '../../data/profile';
+import { PROJECTS, GITHUB_PROFILE_URL } from '../../data/projects';
 import { Github, ArrowUpRight } from 'lucide-react';
 import { ScrollPull } from '../Motion/ScrollPull';
 
@@ -85,7 +85,7 @@ export const Projects: React.FC = () => {
                           <span className="w-1.5 h-1.5 bg-[#C8102E]" />
                           {project.classification[language]}
                         </span>
-                        {project.techStack.map((tech) => (
+                        {project.techStack?.map((tech) => (
                           <span
                             key={tech}
                             className="px-2 py-0.5 text-[10px] tracking-wider uppercase text-stone-900/60 dark:text-stone-50/60 border border-stone-200 dark:border-stone-800"
@@ -134,6 +134,30 @@ export const Projects: React.FC = () => {
             </ScrollPull>
           ))}
         </div>
+
+        {/* Footer Link: More Projects on GitHub */}
+        <ScrollPull delay={0.25} displacement={16}>
+          <div className="mt-8 pt-6 border-t border-stone-200 dark:border-stone-800 flex items-center justify-between flex-wrap gap-4 font-mono text-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-[#C8102E]" aria-hidden="true" />
+              <span className="text-stone-900/60 dark:text-stone-50/60 tracking-wider uppercase">
+                {t.work.selectedLabel || 'SELECTED PROJECTS // 01 — 03'}
+              </span>
+            </div>
+            <a
+              href={GITHUB_PROFILE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2 text-stone-900 dark:text-stone-50 hover:text-[#C8102E] dark:hover:text-[#C8102E] transition-colors font-medium tracking-wider uppercase"
+            >
+              <span>MORE PROJECTS</span>
+              <ArrowUpRight
+                size={14}
+                className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </a>
+          </div>
+        </ScrollPull>
       </div>
     </section>
   );

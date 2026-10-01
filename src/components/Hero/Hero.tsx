@@ -32,6 +32,7 @@ export const Hero: React.FC = () => {
 
   const photoY = useTransform(scrollYProgress, [0, 1], [0, shouldReduceMotion ? 0 : 20]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.9], [1, shouldReduceMotion ? 1 : 0.4]);
+  const watermarkY = useTransform(scrollYProgress, [0, 1], [0, shouldReduceMotion ? 0 : 45]);
 
   return (
     <section
@@ -40,13 +41,14 @@ export const Hero: React.FC = () => {
       aria-label={t.hero.sectionNum}
       className="relative w-full border-b border-stone-200 dark:border-stone-800 overflow-hidden select-none bg-stone-50 dark:bg-stone-950"
     >
-      {/* Background Watermark Numeral */}
-      <div
+      {/* Background Watermark Numeral with subtle scroll parallax (Skills-main cinematic-scroll-storytelling) */}
+      <motion.div
+        style={{ y: watermarkY }}
         aria-hidden="true"
-        className="absolute top-0 right-0 text-[clamp(10rem,25vw,22rem)] font-light leading-none text-stone-900/[0.03] dark:text-stone-50/[0.03] select-none pointer-events-none pr-8 pt-4 tabular-nums"
+        className="absolute top-0 right-0 text-[clamp(10rem,25vw,22rem)] font-light leading-none text-stone-900/[0.03] dark:text-stone-50/[0.03] select-none pointer-events-none pr-8 pt-4 tabular-nums will-change-transform"
       >
         01
-      </div>
+      </motion.div>
 
       {isDesktop ? (
         /* ══════════════════════════════════════════════════════════════════════

@@ -16,27 +16,12 @@ export const Lanyard3D: React.FC<LanyardPublicProps> = ({ className = '' }) => {
   const { theme } = useTheme();
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [isVisible, setIsVisible] = useState<boolean>(true);
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [webGlSupported, setWebGlSupported] = useState<boolean>(true);
+  const [webGlSupported] = useState<boolean>(true);
 
   // Keyboard flip trigger ref passed down to physics
   const triggerFlipRef = useRef<(() => void) | null>(null);
-
-  // WebGL support verification
-  useEffect(() => {
-    try {
-      const testCanvas = document.createElement('canvas');
-      const gl =
-        testCanvas.getContext('webgl') ||
-        testCanvas.getContext('experimental-webgl');
-      if (!gl) {
-        setWebGlSupported(false);
-      }
-    } catch {
-      setWebGlSupported(false);
-    }
-  }, []);
 
   // IntersectionObserver to pause rendering when section is out of viewport
   useEffect(() => {
@@ -93,7 +78,7 @@ export const Lanyard3D: React.FC<LanyardPublicProps> = ({ className = '' }) => {
               far: CAMERA_FAR,
             }}
             dpr={[1, 1.75]}
-            frameloop={isVisible ? 'always' : 'never'}
+            frameloop="always"
             gl={{
               alpha: true,
               antialias: true,

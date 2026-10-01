@@ -1,3 +1,5 @@
+import { SOCIAL_LINKS } from './socialLinks';
+
 export const TRANSLATIONS = {
   id: {
     nav: {
@@ -9,6 +11,8 @@ export const TRANSLATIONS = {
       contact: 'KONTAK',
       languageLabel: 'Ubah bahasa ke Bahasa Inggris',
       themeLabel: 'Ganti tema tampilan',
+      menuOpen: 'Buka menu navigasi',
+      menuClose: 'Tutup menu navigasi',
       light: 'TERANG',
       dark: 'GELAP',
     },
@@ -25,9 +29,9 @@ export const TRANSLATIONS = {
       status: 'AVAILABLE FOR PROJECTS',
       techStack: ['PYTHON', 'TYPESCRIPT', 'REACT', 'NODE.JS'],
       socials: [
-        { label: 'GITHUB', url: 'https://github.com/ahmadbadawi' },
-        { label: 'LINKEDIN', url: 'https://linkedin.com/in/ahmadbadawi' },
-        { label: 'INSTAGRAM', url: 'https://instagram.com/ahmadbadawi' },
+        { label: 'GITHUB', url: SOCIAL_LINKS.github.url },
+        { label: 'LINKEDIN', url: SOCIAL_LINKS.linkedin.url },
+        { label: 'INSTAGRAM', url: SOCIAL_LINKS.instagram.url },
       ],
       coreStackLabel: 'STACK TEKNOLOGI //',
       interactionHint: 'Hover foto untuk memicu liquid reveal',
@@ -91,13 +95,6 @@ export const TRANSLATIONS = {
       viewProject: 'LIHAT PROYEK',
       liveDemo: 'DEMO LANGSUNG',
       detailsLabel: 'BUKTI TEKNIS & CATATAN IMPLEMENTASI',
-      closeModal: 'TUTUP DETAIL',
-      inspectBtn: 'INSPEKSI TEKNIS',
-    },
-    approach: {
-      sectionNum: '06 / METODOLOGI',
-      title: 'CARA SAYA BEKERJA',
-      lead: 'Lima langkah sistematis yang memandu setiap perancangan dan implementasi solusi.',
     },
     contact: {
       sectionNum: '06 / HUBUNGI',
@@ -113,7 +110,8 @@ export const TRANSLATIONS = {
       name: 'AHMAD BADAWI',
       role: 'SOFTWARE DEVELOPER',
       copyright: '© 2026 Ahmad Badawi. All rights reserved.',
-      swissNote: 'Dirancang menggunakan kaidah tipografi Swiss International Style (12-column grid, IBM Plex Sans, palet Stone).',
+      description: 'Software Developer dan mahasiswa S1 Sistem Informasi di Universitas Bina Insani. Berfokus pada pengembangan web & aplikasi praktis, eksplorasi AI terapan, dan belajar melalui pemecahan masalah nyata secara konsisten.',
+      swissNote: 'Software Developer dan mahasiswa S1 Sistem Informasi di Universitas Bina Insani. Berfokus pada pengembangan web & aplikasi praktis, eksplorasi AI terapan, dan belajar melalui pemecahan masalah nyata secara konsisten.',
       channels: 'JALUR',
       backToTop: 'KEMBALI KE ATAS ↑',
     },
@@ -136,6 +134,8 @@ export const TRANSLATIONS = {
       contact: 'CONTACT',
       languageLabel: 'Switch language to Indonesian',
       themeLabel: 'Toggle color scheme',
+      menuOpen: 'Open navigation menu',
+      menuClose: 'Close navigation menu',
       light: 'LIGHT',
       dark: 'DARK',
     },
@@ -152,9 +152,9 @@ export const TRANSLATIONS = {
       status: 'AVAILABLE FOR PROJECTS',
       techStack: ['PYTHON', 'TYPESCRIPT', 'REACT', 'NODE.JS'],
       socials: [
-        { label: 'GITHUB', url: 'https://github.com/ahmadbadawi' },
-        { label: 'LINKEDIN', url: 'https://linkedin.com/in/ahmadbadawi' },
-        { label: 'INSTAGRAM', url: 'https://instagram.com/ahmadbadawi' },
+        { label: 'GITHUB', url: SOCIAL_LINKS.github.url },
+        { label: 'LINKEDIN', url: SOCIAL_LINKS.linkedin.url },
+        { label: 'INSTAGRAM', url: SOCIAL_LINKS.instagram.url },
       ],
       coreStackLabel: 'CORE STACK //',
       interactionHint: 'Hover photo to trigger organic liquid reveal',
@@ -218,13 +218,6 @@ export const TRANSLATIONS = {
       viewProject: 'VIEW PROJECT',
       liveDemo: 'LIVE DEMO',
       detailsLabel: 'TECHNICAL EVIDENCE & IMPLEMENTATION NOTES',
-      closeModal: 'CLOSE DETAILS',
-      inspectBtn: 'INSPECT TECHNICAL SPECS',
-    },
-    approach: {
-      sectionNum: '06 / HOW I WORK',
-      title: 'HOW I WORK',
-      lead: 'Five disciplined steps guiding design, architectural decisions, and reliable delivery.',
     },
     contact: {
       sectionNum: '06 / CONTACT',
@@ -240,7 +233,8 @@ export const TRANSLATIONS = {
       name: 'AHMAD BADAWI',
       role: 'SOFTWARE DEVELOPER',
       copyright: '© 2026 Ahmad Badawi. All rights reserved.',
-      swissNote: 'Designed under the Swiss International Typographic Style (12-column grid, IBM Plex Sans, Stone palette).',
+      description: 'Software Developer and Information Systems student at Universitas Bina Insani. Focused on practical web & software development, applied AI exploration, and continuous learning through building real-world solutions.',
+      swissNote: 'Software Developer and Information Systems student at Universitas Bina Insani. Focused on practical web & software development, applied AI exploration, and continuous learning through building real-world solutions.',
       channels: 'CHANNELS',
       backToTop: 'BACK TO TOP ↑',
     },

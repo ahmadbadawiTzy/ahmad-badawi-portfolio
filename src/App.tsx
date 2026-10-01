@@ -15,13 +15,15 @@ import { Journey } from './components/Journey/Journey';
 import { Projects } from './components/Projects/Projects';
 import { Contact } from './components/Contact/Contact';
 import { Footer } from './components/Footer/Footer';
+import { ErrorBoundary } from './components/Common/ErrorBoundary';
 
 export default function App() {
   const [isSplashComplete, setIsSplashComplete] = useState(false);
 
   return (
-    <ThemeProvider>
-      <LanguageProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <LanguageProvider>
         {/* Editorial Swiss Splash Screen Sequence */}
         {!isSplashComplete && (
           <SplashScreen onComplete={() => setIsSplashComplete(true)} />
@@ -57,5 +59,6 @@ export default function App() {
         </div>
       </LanguageProvider>
     </ThemeProvider>
+  </ErrorBoundary>
   );
 }

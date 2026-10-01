@@ -40,35 +40,35 @@ export const DRAG_BOUNDS_Y: [number, number] = [-2.2, 1.5];
 export const DRAG_BOUNDS_Z: [number, number] = [-1.5, 1.8];
 
 // --- Strap / Ribbon Defaults (React Bits Lanyard character) ---
-export const STRAP_WIDTH = 0.32; // Natural flexible woven band width
+export const STRAP_WIDTH = 0.18; // Sleek, modern refined lanyard ribbon width
 export const STRAP_CURVE_POINTS = 32;
 export const STRAP_COLOR = 0xffffff; // White tint allows full canvas texture color fidelity
 export const STRAP_REPEAT: [number, number] = [2, 1]; // Clean, unstretched 2-cycle repeat along strap length
 
 // --- Swiss & Hardware Color Palette ---
 export const SWISS_RED = '#C8102E';
-export const METAL_CLIP_COLOR = 0xd4d6db; // Brushed/anodized metallic hardware
-export const STRAP_BASE_COLOR = '#161517'; // Deep woven charcoal
+export const METAL_CLIP_COLOR = 0xc8cbd0; // Brushed titanium / satin metallic hardware
+export const STRAP_BASE_COLOR = '#111113'; // Deep matte charcoal
 
 export const THEME_COLORS = {
   dark: {
-    cardBg: '#121113', // Deep matte obsidian polymer
+    cardBg: '#111113', // Deep matte obsidian
     textPrimary: '#fafaf9', // stone-50
-    textSecondary: 'rgba(250, 250, 249, 0.72)',
-    textTertiary: 'rgba(250, 250, 249, 0.42)',
-    hairlineBorder: 'rgba(250, 250, 249, 0.12)',
-    topCutout: '#080709', // punch slot
-    photoBg: '#1c1b1f',
-    edgeColor: 0x1a191c,
+    textSecondary: '#a1a1aa', // stone-400
+    textTertiary: '#71717a', // stone-500
+    hairlineBorder: 'rgba(255, 255, 255, 0.08)',
+    topCutout: '#09090b', // punch slot
+    photoBg: '#1c1c20',
+    edgeColor: 0x18181b,
   },
   light: {
-    cardBg: '#f7f7f8', // Crisp coated polymer white
-    textPrimary: '#18171a',
-    textSecondary: 'rgba(24, 23, 26, 0.75)',
-    textTertiary: 'rgba(24, 23, 26, 0.45)',
-    hairlineBorder: 'rgba(24, 23, 26, 0.12)',
-    topCutout: '#dedfe3',
-    photoBg: '#f0f0f3',
+    cardBg: '#fafaf9', // Swiss stone-50 porcelain
+    textPrimary: '#141416',
+    textSecondary: '#52525b',
+    textTertiary: '#a1a1aa',
+    hairlineBorder: 'rgba(0, 0, 0, 0.08)',
+    topCutout: '#e4e4e7',
+    photoBg: '#e8e8ec',
     edgeColor: 0xe4e4e7,
   },
 } as const;

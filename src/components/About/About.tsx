@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { Lanyard3D } from './Lanyard3D';
 import { ScrollPull } from '../Motion/ScrollPull';
+import { ErrorBoundary } from '../Common/ErrorBoundary';
+
+const Lanyard3D = lazy(() => import('./Lanyard3D'));
 
 export const About: React.FC = () => {
   const { t } = useLanguage();
@@ -77,8 +79,12 @@ export const About: React.FC = () => {
           </div>
 
           {/* Right Column: 3D Lanyard Physical Object */}
-          <div className="col-span-12 lg:col-span-6 flex items-center justify-center overflow-hidden">
-            <Lanyard3D />
+          <div className="col-span-12 lg:col-span-6 flex items-center justify-center overflow-hidden w-full">
+            <ErrorBoundary fallback={<div className="relative mx-auto w-full max-w-[480px] h-[min(480px,60vh)] sm:h-[min(540px,70vh)] md:h-[580px]" aria-hidden="true" />}>
+              <Suspense fallback={<div className="relative mx-auto w-full max-w-[480px] h-[min(480px,60vh)] sm:h-[min(540px,70vh)] md:h-[580px]" aria-hidden="true" />}>
+                <Lanyard3D />
+              </Suspense>
+            </ErrorBoundary>
           </div>
         </div>
       </div>

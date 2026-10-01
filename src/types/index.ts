@@ -49,14 +49,3 @@ export interface EducationItem {
   };
 }
 
-export interface ApproachStep {
-  number: string;
-  title: {
-    id: string;
-    en: string;
-  };
-  description: {
-    id: string;
-    en: string;
-  };
-}

@@ -14,16 +14,24 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('ab_portfolio_lang') as Language | null;
-      if (saved === 'id' || saved === 'en') {
-        return saved;
+      try {
+        const saved = localStorage.getItem('ab_portfolio_lang') as Language | null;
+        if (saved === 'id' || saved === 'en') {
+          return saved;
+        }
+      } catch {
+        // Storage access restricted
       }
     }
     return 'id'; // Default: Indonesian as required
   });
 
   useEffect(() => {
-    localStorage.setItem('ab_portfolio_lang', language);
+    try {
+      localStorage.setItem('ab_portfolio_lang', language);
+    } catch {
+      // Storage access restricted
+    }
     document.documentElement.lang = language;
   }, [language]);
 

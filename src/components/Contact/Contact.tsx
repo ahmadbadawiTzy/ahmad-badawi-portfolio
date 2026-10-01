@@ -1,23 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { PROFILE } from '../../data/profile';
+import { SOCIAL_LINKS } from '../../data/socialLinks';
 import { Mail, ArrowUpRight, Copy, Check, Github, Linkedin, Instagram } from 'lucide-react';
 import { ScrollPull } from '../Motion/ScrollPull';
 
 export const Contact: React.FC = () => {
   const { t } = useLanguage();
   const [copied, setCopied] = useState<boolean>(false);
+  const copyTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current !== null) {
+        window.clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText(PROFILE.email);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2400);
+    const fallbackCopy = () => {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = SOCIAL_LINKS.email.address;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        setCopied(true);
+      } catch {
+        // Silently ignore if execution context is strictly isolated
+      }
+    };
+
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(SOCIAL_LINKS.email.address)
+        .then(() => {
+          setCopied(true);
+        })
+        .catch(() => {
+          fallbackCopy();
+        });
+    } else {
+      fallbackCopy();
+    }
+
+    if (copyTimeoutRef.current !== null) {
+      window.clearTimeout(copyTimeoutRef.current);
+    }
+    copyTimeoutRef.current = window.setTimeout(() => setCopied(false), 2400);
   };
 
   const socialLinks = [
-    { label: 'GitHub', href: PROFILE.github, icon: Github },
-    { label: 'LinkedIn', href: PROFILE.linkedin, icon: Linkedin },
-    { label: 'Instagram', href: PROFILE.instagram, icon: Instagram },
+    { label: 'GitHub', href: SOCIAL_LINKS.github.url, icon: Github },
+    { label: 'LinkedIn', href: SOCIAL_LINKS.linkedin.url, icon: Linkedin },
+    { label: 'Instagram', href: SOCIAL_LINKS.instagram.url, icon: Instagram },
   ];
 
   return (
@@ -57,7 +96,7 @@ export const Contact: React.FC = () => {
             <ScrollPull delay={0.1} displacement={20}>
               <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-4">
                 <a
-                  href={`mailto:${PROFILE.email}?subject=Discussion%20/%20Project%20Inquiry`}
+                  href={`${SOCIAL_LINKS.email.url}?subject=Discussion%20/%20Project%20Inquiry`}
                   id="contact-email-cta-btn"
                   className="inline-flex items-center gap-2.5 px-7 py-3.5 min-h-[44px] bg-[#C8102E] text-white hover:bg-[#A00D24] transition-colors text-xs font-mono font-medium tracking-wider uppercase rounded-none cursor-pointer focus-visible:outline-2 focus-visible:outline-[#C8102E]"
                 >
@@ -121,13 +160,13 @@ export const Contact: React.FC = () => {
 
                 {/* Direct email display */}
                 <a
-                  href={`mailto:${PROFILE.email}`}
+                  href={SOCIAL_LINKS.email.url}
                   className="py-4 flex items-center justify-between text-stone-900 dark:text-stone-50 hover:text-[#C8102E] dark:hover:text-[#C8102E] transition-colors group min-h-[44px]"
                 >
                   <div className="flex items-center gap-3">
                     <Mail size={16} className="text-stone-900/60 dark:text-stone-50/60 group-hover:text-[#C8102E] transition-colors" />
                     <span className="text-xs sm:text-sm font-mono truncate max-w-[60vw] sm:max-w-[240px]">
-                      {PROFILE.email}
+                      {SOCIAL_LINKS.email.label}
                     </span>
                   </div>
                   <ArrowUpRight size={14} className="text-stone-900/40 dark:text-stone-50/40 group-hover:text-[#C8102E] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />

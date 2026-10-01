@@ -174,8 +174,6 @@ export const LanyardPhysics: React.FC<LanyardPhysicsProps> = ({
 
   // Main animation frame loop
   useFrame((state) => {
-    if (!isVisible) return;
-
     // Distinguish click vs drag using screen-pixel distance threshold
     if (isPointerDown.current && !hasMovedPastThreshold.current) {
       const dx = (state.pointer.x - dragStartPointer.current.x) * (state.size.width / 2);

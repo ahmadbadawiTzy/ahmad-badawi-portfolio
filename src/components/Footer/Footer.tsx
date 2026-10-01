@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { PROFILE } from '../../data/profile';
+import { SOCIAL_LINKS, IDENTITY_DATA } from '../../data/socialLinks';
+import { ScrollPull } from '../Motion/ScrollPull';
 
 export const Footer: React.FC = () => {
   const { t } = useLanguage();
@@ -11,21 +12,21 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="py-16 md:py-24 bg-stone-100 dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 text-stone-900 dark:text-stone-50 transition-colors">
-      <div className="max-w-6xl mx-auto px-8">
+      <ScrollPull displacement={16} className="max-w-6xl mx-auto px-8">
         <div className="grid grid-cols-12 gap-8 items-start mb-12">
           {/* Identity */}
           <div className="col-span-12 md:col-span-6">
             <div className="flex items-center gap-2 mb-2">
               <span className="w-2 h-2 bg-[#C8102E]" aria-hidden="true" />
               <span className="text-base font-normal uppercase tracking-tight text-stone-900 dark:text-stone-50">
-                {PROFILE.name}
+                {IDENTITY_DATA.name}
               </span>
             </div>
             <p className="font-mono text-[10px] uppercase tracking-widest text-stone-900/60 dark:text-stone-50/60 font-medium">
-              {PROFILE.role}
+              {IDENTITY_DATA.role}
             </p>
             <p className="mt-4 text-[10px] font-mono text-stone-900/50 dark:text-stone-50/50 uppercase max-w-[48ch] leading-relaxed">
-              {t.footer.swissNote}
+              {t.footer.description || t.footer.swissNote}
             </p>
           </div>
 
@@ -36,7 +37,7 @@ export const Footer: React.FC = () => {
             </span>
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-mono uppercase font-medium">
               <a
-                href={PROFILE.github}
+                href={SOCIAL_LINKS.github.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-stone-900/70 dark:text-stone-50/70 hover:text-[#C8102E] dark:hover:text-[#C8102E] transition-colors min-h-[32px] inline-flex items-center"
@@ -44,7 +45,7 @@ export const Footer: React.FC = () => {
                 GitHub
               </a>
               <a
-                href={PROFILE.linkedin}
+                href={SOCIAL_LINKS.linkedin.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-stone-900/70 dark:text-stone-50/70 hover:text-[#C8102E] dark:hover:text-[#C8102E] transition-colors min-h-[32px] inline-flex items-center"
@@ -52,7 +53,7 @@ export const Footer: React.FC = () => {
                 LinkedIn
               </a>
               <a
-                href={PROFILE.instagram}
+                href={SOCIAL_LINKS.instagram.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-stone-900/70 dark:text-stone-50/70 hover:text-[#C8102E] dark:hover:text-[#C8102E] transition-colors min-h-[32px] inline-flex items-center"
@@ -60,7 +61,7 @@ export const Footer: React.FC = () => {
                 Instagram
               </a>
               <a
-                href={`mailto:${PROFILE.email}`}
+                href={SOCIAL_LINKS.email.url}
                 className="text-stone-900/70 dark:text-stone-50/70 hover:text-[#C8102E] dark:hover:text-[#C8102E] transition-colors min-h-[32px] inline-flex items-center"
               >
                 Email
@@ -87,7 +88,7 @@ export const Footer: React.FC = () => {
           <span>{t.footer.copyright}</span>
           <span>BEKASI, INDONESIA // 2026</span>
         </div>
-      </div>
+      </ScrollPull>
     </footer>
   );
 };
