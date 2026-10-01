@@ -3,16 +3,20 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three-stdlib';
 import type { ThreeEvent } from '@react-three/fiber';
 import { AHMAD_PORTRAITS } from '../../../assets/images';
+import { IDENTITY_DATA, SOCIAL_LINKS } from '../../../data/socialLinks';
+import { FEATURED_PROJECTS, GITHUB_PROFILE_URL } from '../../../data/projects';
 import type { ThemeMode } from './lanyard.types';
 import {
   CARD_WIDTH,
   CARD_HEIGHT,
   CARD_THICKNESS,
   CARD_CORNER_RADIUS,
+  CARD_CLIP_OFFSET_Y,
   TEXTURE_WIDTH,
   TEXTURE_HEIGHT,
   SWISS_RED,
   METAL_CLIP_COLOR,
+  STRAP_BASE_COLOR,
   THEME_COLORS,
 } from './lanyard.constants';
 
@@ -122,7 +126,7 @@ function drawBarcode(
   for (let i = 0; i < pattern.length; i++) {
     const barW = pattern[i] * unit;
     if (i % 2 === 0) {
-      ctx.fillRect(curX, y + (i % 5 === 0 ? 0 : 3), barW, height - (i % 5 === 0 ? 0 : 6));
+      ctx.fillRect(curX, y + (i % 5 === 0 ? 0 : 2), barW, height - (i % 5 === 0 ? 0 : 4));
     }
     curX += barW;
   }
@@ -220,9 +224,17 @@ export const LanyardCard: React.FC<LanyardCardProps> = ({
     }
     const ft = new THREE.CanvasTexture(canvasesRef.current.frontCanvas);
     ft.colorSpace = THREE.SRGBColorSpace;
+    ft.anisotropy = 8;
+    ft.generateMipmaps = true;
+    ft.minFilter = THREE.LinearMipmapLinearFilter;
+    ft.magFilter = THREE.LinearFilter;
 
     const bt = new THREE.CanvasTexture(canvasesRef.current.backCanvas);
     bt.colorSpace = THREE.SRGBColorSpace;
+    bt.anisotropy = 8;
+    bt.generateMipmaps = true;
+    bt.minFilter = THREE.LinearMipmapLinearFilter;
+    bt.magFilter = THREE.LinearFilter;
 
     return { frontTexture: ft, backTexture: bt };
   }, []);
@@ -237,371 +249,336 @@ export const LanyardCard: React.FC<LanyardCardProps> = ({
     const PAD = 64;
 
     // =========================================================================
-    // FRONT FACE: Swiss Editorial Developer Identity Badge
+    // FRONT FACE: Clean Swiss Developer Identity Badge
     // =========================================================================
 
-    // Solid card substrate
+    // 1. Solid matte polymer substrate
     fCtx.fillStyle = colors.cardBg;
     fCtx.fillRect(0, 0, W, H);
 
-    // Micro-dot matrix background pattern
-    fCtx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.025)';
-    for (let py = 32; py < H; py += 32) {
-      for (let px = 32; px < W; px += 32) {
-        fCtx.fillRect(px, py, 1.5, 1.5);
-      }
-    }
-
-    // Outer card edge hairline border (inset for rounded corners)
+    // 2. Outer hairline border
     fCtx.strokeStyle = colors.hairlineBorder;
-    fCtx.lineWidth = 2;
-    fCtx.strokeRect(32, 32, W - 64, H - 64);
+    fCtx.lineWidth = 1.5;
+    fCtx.strokeRect(36, 36, W - 72, H - 72);
 
-    // Drafting registration crosshairs at the 4 card corners
-    const regCrossColor = isDark ? 'rgba(250, 250, 249, 0.25)' : 'rgba(24, 23, 26, 0.25)';
-    drawRegistrationCross(fCtx, 44, 44, 12, regCrossColor);
-    drawRegistrationCross(fCtx, W - 44, 44, 12, regCrossColor);
-    drawRegistrationCross(fCtx, 44, H - 44, 12, regCrossColor);
-    drawRegistrationCross(fCtx, W - 44, H - 44, 12, regCrossColor);
-
-    // Top punch slot cutout (physical badge slot)
+    // 3. Top punch slot cutout
     fCtx.fillStyle = colors.topCutout;
     fCtx.beginPath();
-    fCtx.roundRect(W / 2 - 85, 46, 170, 26, 13);
+    fCtx.roundRect(W / 2 - 75, 46, 150, 24, 12);
     fCtx.fill();
     fCtx.strokeStyle = colors.hairlineBorder;
     fCtx.lineWidth = 1.5;
     fCtx.stroke();
 
-    // Section 1: Header Category & Institutional Branding
-    // Kicker: DEVELOPER IDENTITY
+    // 4. Header Bar (Y = 105)
     fCtx.fillStyle = SWISS_RED;
-    fCtx.fillRect(PAD, 98, 12, 12);
+    fCtx.fillRect(PAD, 102, 10, 10);
 
-    fCtx.fillStyle = isDark ? '#fafaf9' : '#18171a';
-    fCtx.font = '600 16px "IBM Plex Mono", monospace';
-    fCtx.fillText('DEVELOPER IDENTITY', PAD + 22, 110);
-
-    // Right ID
-    fCtx.fillStyle = colors.textTertiary;
-    fCtx.font = '500 15px "IBM Plex Mono", monospace';
-    fCtx.textAlign = 'right';
-    fCtx.fillText('UBI // ID-2024', W - PAD, 110);
-    fCtx.textAlign = 'left';
-
-    // Institution & Degree
     fCtx.fillStyle = colors.textPrimary;
-    fCtx.font = '600 24px "IBM Plex Mono", monospace';
-    fCtx.fillText('UNIVERSITAS BINA INSANI', PAD, 150);
+    fCtx.font = '600 14px "IBM Plex Mono", monospace';
+    fCtx.fillText(IDENTITY_DATA.institution.toUpperCase(), PAD + 20, 111);
+
+    fCtx.textAlign = 'right';
+    fCtx.fillStyle = SWISS_RED;
+    fCtx.beginPath();
+    fCtx.arc(W - PAD - 86, 107, 4, 0, Math.PI * 2);
+    fCtx.fill();
 
     fCtx.fillStyle = colors.textSecondary;
-    fCtx.font = '400 18px "IBM Plex Sans", sans-serif';
-    fCtx.fillText('S1 SISTEM INFORMASI  \u2022  BEKASI, INDONESIA', PAD, 180);
-
-    // Restrained Swiss Red accent rule
-    fCtx.fillStyle = SWISS_RED;
-    fCtx.fillRect(PAD, 206, W - PAD * 2, 4);
-
-    // Section 2: Portrait Photo Presentation
-    const portraitX = PAD;
-    const portraitY = 228;
-    const portraitW = W - PAD * 2;
-    const portraitH = 660;
-
-    fCtx.fillStyle = colors.photoBg;
-    fCtx.fillRect(portraitX, portraitY, portraitW, portraitH);
-
-    if (portraitImg.complete && portraitImg.naturalWidth > 0) {
-      fCtx.drawImage(portraitImg, portraitX, portraitY, portraitW, portraitH);
-    }
-
-    fCtx.strokeStyle = colors.hairlineBorder;
-    fCtx.lineWidth = 2;
-    fCtx.strokeRect(portraitX, portraitY, portraitW, portraitH);
-
-    // Corner registration crosshairs on photo
-    drawRegistrationCross(fCtx, portraitX, portraitY, 8, regCrossColor);
-    drawRegistrationCross(fCtx, portraitX + portraitW, portraitY, 8, regCrossColor);
-    drawRegistrationCross(fCtx, portraitX, portraitY + portraitH, 8, regCrossColor);
-    drawRegistrationCross(fCtx, portraitX + portraitW, portraitY + portraitH, 8, regCrossColor);
-
-    // Technical photo overlay tag
-    fCtx.fillStyle = isDark ? 'rgba(18, 17, 19, 0.88)' : 'rgba(247, 247, 248, 0.90)';
-    fCtx.fillRect(portraitX + portraitW - 150, portraitY + 12, 138, 26);
-    fCtx.strokeStyle = colors.hairlineBorder;
-    fCtx.lineWidth = 1;
-    fCtx.strokeRect(portraitX + portraitW - 150, portraitY + 12, 138, 26);
-
-    fCtx.fillStyle = colors.textPrimary;
-    fCtx.font = '600 13px "IBM Plex Mono", monospace';
-    fCtx.fillText('DEV-ID // 2024', portraitX + portraitW - 138, portraitY + 30);
-
-    // Millimeter ticks along left edge of photo
-    fCtx.fillStyle = isDark ? 'rgba(250, 250, 249, 0.25)' : 'rgba(24, 23, 26, 0.25)';
-    for (let ty = portraitY + 20; ty < portraitY + portraitH - 20; ty += 20) {
-      const isMajor = (ty - (portraitY + 20)) % 100 === 0;
-      fCtx.fillRect(portraitX + 4, ty, isMajor ? 12 : 6, 1.5);
-    }
-
-    // Section 3: Hardware EMV Chip & Security Verification
-    drawEMVChip(fCtx, PAD, 915, 128, 90);
-
-    fCtx.fillStyle = colors.textTertiary;
-    fCtx.font = '500 14px "IBM Plex Mono", monospace';
-    fCtx.fillText('SECURITY CLEARANCE', PAD + 160, 945);
-
-    fCtx.fillStyle = colors.textPrimary;
-    fCtx.font = '600 16px "IBM Plex Mono", monospace';
-    fCtx.fillText('LEVEL 03 // FULL ACCESS', PAD + 160, 975);
-
-    fCtx.fillStyle = SWISS_RED;
     fCtx.font = '500 13px "IBM Plex Mono", monospace';
-    fCtx.fillText('[ ATTESTED AUTH-VALID ]', PAD + 160, 1000);
+    fCtx.fillText('DEV // 2026', W - PAD, 111);
+    fCtx.textAlign = 'left';
 
-    // Separator line
     fCtx.strokeStyle = colors.hairlineBorder;
     fCtx.lineWidth = 1;
     fCtx.beginPath();
-    fCtx.moveTo(PAD, 1025);
-    fCtx.lineTo(W - PAD, 1025);
+    fCtx.moveTo(PAD, 136);
+    fCtx.lineTo(W - PAD, 136);
     fCtx.stroke();
 
-    // Section 4: Primary Identity Typography
-    const nameY = 1105;
-    fCtx.fillStyle = colors.textPrimary;
-    fCtx.font = '600 76px "IBM Plex Sans", sans-serif';
-    fCtx.fillText('AHMAD', PAD, nameY);
-    fCtx.fillText('BADAWI', PAD, nameY + 76);
+    // 5. Portrait Section (Y = 160 .. 840)
+    const photoX = PAD;
+    const photoY = 160;
+    const photoW = W - PAD * 2;
+    const photoH = 680;
 
-    // Swiss Red accent block under name
+    fCtx.fillStyle = colors.photoBg;
+    fCtx.beginPath();
+    fCtx.roundRect(photoX, photoY, photoW, photoH, 16);
+    fCtx.fill();
+
+    if (portraitImg.complete && portraitImg.naturalWidth > 0) {
+      fCtx.save();
+      fCtx.beginPath();
+      fCtx.roundRect(photoX, photoY, photoW, photoH, 16);
+      fCtx.clip();
+
+      const imgW = portraitImg.naturalWidth;
+      const imgH = portraitImg.naturalHeight;
+      const targetRatio = photoW / photoH;
+      const imgRatio = imgW / imgH;
+      let srcX = 0, srcY = 0, srcW = imgW, srcH = imgH;
+      if (imgRatio > targetRatio) {
+        srcW = imgH * targetRatio;
+        srcX = (imgW - srcW) / 2;
+      } else {
+        srcH = imgW / targetRatio;
+        srcY = (imgH - srcH) / 2;
+      }
+
+      fCtx.drawImage(portraitImg, srcX, srcY, srcW, srcH, photoX, photoY, photoW, photoH);
+      fCtx.restore();
+    }
+
+    fCtx.strokeStyle = colors.hairlineBorder;
+    fCtx.lineWidth = 1.5;
+    fCtx.beginPath();
+    fCtx.roundRect(photoX, photoY, photoW, photoH, 16);
+    fCtx.stroke();
+
+    // 6. Identity Typography (Y = 890 .. 1120)
+    const ty = 890;
     fCtx.fillStyle = SWISS_RED;
-    fCtx.fillRect(PAD, nameY + 96, 56, 5);
-
-    // Primary Role
-    fCtx.fillStyle = colors.textPrimary;
-    fCtx.font = '600 30px "IBM Plex Mono", monospace';
-    fCtx.fillText('SOFTWARE DEVELOPER', PAD, nameY + 146);
-
-    // Section 5: Institutional & Tenancy Metadata Grid
-    const metaY = 1290;
-    fCtx.fillStyle = colors.textTertiary;
-    fCtx.font = '500 14px "IBM Plex Mono", monospace';
-    fCtx.fillText('PROGRAM', PAD, metaY);
-    fCtx.fillText('TENURE', PAD, metaY + 34);
+    fCtx.font = '600 13px "IBM Plex Mono", monospace';
+    fCtx.fillText('// IDENTITY ATTRIBUTION', PAD, ty);
 
     fCtx.fillStyle = colors.textPrimary;
-    fCtx.font = '500 15px "IBM Plex Mono", monospace';
-    fCtx.fillText('UNIVERSITAS BINA INSANI  \u2022  S1 SISTEM INFORMASI', PAD + 110, metaY);
-    fCtx.fillText('2024 \u2014 PRESENT  \u2022  BEKASI, INDONESIA', PAD + 110, metaY + 34);
+    fCtx.font = '700 64px "IBM Plex Sans", -apple-system, sans-serif';
+    fCtx.fillText('AHMAD BADAWI', PAD, ty + 70);
 
-    // Section 6: Footer Barcode & Cryptographic Attestation
-    drawBarcode(fCtx, PAD, 1375, W - PAD * 2, 42, isDark ? '#fafaf9' : '#18171a');
+    fCtx.fillStyle = SWISS_RED;
+    fCtx.font = '600 22px "IBM Plex Mono", monospace';
+    fCtx.fillText('SOFTWARE DEVELOPER', PAD, ty + 114);
+
+    fCtx.fillStyle = colors.textSecondary;
+    fCtx.font = '500 18px "IBM Plex Sans", -apple-system, sans-serif';
+    fCtx.fillText(`${IDENTITY_DATA.degree}  \u2022  Web & Applied AI`, PAD, ty + 150);
+
+    fCtx.strokeStyle = colors.hairlineBorder;
+    fCtx.lineWidth = 1;
+    fCtx.beginPath();
+    fCtx.moveTo(PAD, ty + 185);
+    fCtx.lineTo(W - PAD, ty + 185);
+    fCtx.stroke();
+
+    fCtx.fillStyle = SWISS_RED;
+    fCtx.fillRect(PAD, ty + 184, 44, 3);
+
+    // 7. Metadata Grid (Y = 1115 .. 1320)
+    const my = ty + 225;
+    fCtx.fillStyle = colors.textTertiary;
+    fCtx.font = '600 11px "IBM Plex Mono", monospace';
+    fCtx.fillText('INSTITUTION', PAD, my);
+    fCtx.fillStyle = colors.textPrimary;
+    fCtx.font = '500 16px "IBM Plex Mono", monospace';
+    fCtx.fillText(IDENTITY_DATA.institution, PAD, my + 24);
 
     fCtx.fillStyle = colors.textTertiary;
-    fCtx.font = '500 14px "IBM Plex Mono", monospace';
-    fCtx.textAlign = 'center';
-    fCtx.fillText('* AB-8492-2024 // CRYPTOGRAPHICALLY ATTESTED *', W / 2, 1445);
+    fCtx.font = '600 11px "IBM Plex Mono", monospace';
+    fCtx.fillText('LOCATION', PAD, my + 66);
+    fCtx.fillStyle = colors.textPrimary;
+    fCtx.font = '500 16px "IBM Plex Mono", monospace';
+    fCtx.fillText(IDENTITY_DATA.location, PAD, my + 90);
+
+    fCtx.textAlign = 'right';
+    fCtx.fillStyle = colors.textTertiary;
+    fCtx.font = '600 11px "IBM Plex Mono", monospace';
+    fCtx.fillText('BADGE SERIAL', W - PAD, my);
+    fCtx.fillStyle = colors.textPrimary;
+    fCtx.font = '600 16px "IBM Plex Mono", monospace';
+    fCtx.fillText(`AB-${IDENTITY_DATA.idNumber}`, W - PAD, my + 24);
+
+    fCtx.fillStyle = colors.textTertiary;
+    fCtx.font = '600 11px "IBM Plex Mono", monospace';
+    fCtx.fillText('STATUS', W - PAD, my + 66);
+    fCtx.fillStyle = SWISS_RED;
+    fCtx.font = '600 14px "IBM Plex Mono", monospace';
+    fCtx.fillText('\u25CF VERIFIED ACTIVE', W - PAD, my + 90);
     fCtx.textAlign = 'left';
 
-    // Bottom Swiss Red hairline
+    // 8. Vector Barcode & Bottom Swiss Red Rule
+    drawBarcode(fCtx, PAD, 1380, W - PAD * 2, 38, isDark ? '#fafaf9' : '#141416');
+
     fCtx.fillStyle = SWISS_RED;
-    fCtx.fillRect(PAD, H - 46, W - PAD * 2, 4);
+    fCtx.fillRect(PAD, H - 48, W - PAD * 2, 3.5);
 
     // =========================================================================
-    // BACK FACE: Physical Developer Badge Manifesto & Technical Profile
+    // BACK FACE: Clean Swiss Directory & Technical Profile
     // =========================================================================
 
     bCtx.fillStyle = colors.cardBg;
     bCtx.fillRect(0, 0, W, H);
 
-    // Micro-dot matrix background pattern
-    bCtx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.025)';
-    for (let py = 32; py < H; py += 32) {
-      for (let px = 32; px < W; px += 32) {
-        bCtx.fillRect(px, py, 1.5, 1.5);
-      }
-    }
-
-    // Outer card edge hairline border
     bCtx.strokeStyle = colors.hairlineBorder;
-    bCtx.lineWidth = 2;
-    bCtx.strokeRect(32, 32, W - 64, H - 64);
+    bCtx.lineWidth = 1.5;
+    bCtx.strokeRect(36, 36, W - 72, H - 72);
 
-    drawRegistrationCross(bCtx, 44, 44, 12, regCrossColor);
-    drawRegistrationCross(bCtx, W - 44, 44, 12, regCrossColor);
-    drawRegistrationCross(bCtx, 44, H - 44, 12, regCrossColor);
-    drawRegistrationCross(bCtx, W - 44, H - 44, 12, regCrossColor);
-
-    // Top punch slot cutout
     bCtx.fillStyle = colors.topCutout;
     bCtx.beginPath();
-    bCtx.roundRect(W / 2 - 85, 46, 170, 26, 13);
+    bCtx.roundRect(W / 2 - 75, 46, 150, 24, 12);
     bCtx.fill();
     bCtx.strokeStyle = colors.hairlineBorder;
     bCtx.lineWidth = 1.5;
     bCtx.stroke();
 
-    // Magnetic Stripe (Full card width at Y = 95, Height = 100)
-    bCtx.fillStyle = isDark ? '#141416' : '#27272a';
-    bCtx.fillRect(0, 95, W, 100);
-
-    bCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-    bCtx.lineWidth = 1;
-    for (let my = 105; my < 190; my += 12) {
-      bCtx.beginPath();
-      bCtx.moveTo(0, my);
-      bCtx.lineTo(W, my);
-      bCtx.stroke();
-    }
-
-    // Signature Panel (Y = 215, Height = 70)
-    bCtx.fillStyle = isDark ? '#1c1c1f' : '#f0f0f3';
-    bCtx.beginPath();
-    bCtx.roundRect(PAD, 215, W - PAD * 2, 70, 6);
-    bCtx.fill();
-    bCtx.strokeStyle = colors.hairlineBorder;
-    bCtx.lineWidth = 1;
-    bCtx.stroke();
-
-    // Guilloche wavy lines
-    bCtx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)';
-    bCtx.lineWidth = 1;
-    for (let gy = 225; gy < 280; gy += 10) {
-      bCtx.beginPath();
-      bCtx.moveTo(PAD + 10, gy);
-      bCtx.bezierCurveTo(PAD + 200, gy + 8, PAD + 500, gy - 8, W - PAD - 10, gy);
-      bCtx.stroke();
-    }
-
-    bCtx.fillStyle = colors.textPrimary;
-    bCtx.font = '500 15px "IBM Plex Mono", monospace';
-    bCtx.fillText('ECDSA_P256: 3045022100A9F8E2... [AUTHENTICATED]', PAD + 24, 256);
-
-    bCtx.fillStyle = colors.textTertiary;
-    bCtx.font = '400 13px "IBM Plex Mono", monospace';
-    bCtx.fillText('SECURITY KEY ID: 884-2024-AB', W - PAD - 260, 256);
-
-    // Section: Core Manifesto (BUILD. LEARN. EXPERIMENT. IMPROVE.)
+    // Header
     bCtx.fillStyle = SWISS_RED;
-    bCtx.fillRect(PAD, 320, 6, 210);
+    bCtx.fillRect(PAD, 102, 10, 10);
 
-    bCtx.fillStyle = colors.textTertiary;
+    bCtx.fillStyle = colors.textPrimary;
     bCtx.font = '600 14px "IBM Plex Mono", monospace';
-    bCtx.fillText('// DEVELOPER MANIFESTO', PAD + 24, 335);
+    bCtx.fillText('DEVELOPER PORTFOLIO // DIRECTORY', PAD + 20, 111);
 
-    bCtx.fillStyle = colors.textPrimary;
-    bCtx.font = '600 48px "IBM Plex Sans", sans-serif';
-    bCtx.fillText('BUILD.', PAD + 24, 385);
-    bCtx.fillText('LEARN.', PAD + 24, 435);
-    bCtx.fillText('EXPERIMENT.', PAD + 24, 485);
-    bCtx.fillText('IMPROVE.', PAD + 24, 535);
-
-    // Separator
-    bCtx.strokeStyle = colors.hairlineBorder;
-    bCtx.lineWidth = 1;
-    bCtx.beginPath();
-    bCtx.moveTo(PAD, 560);
-    bCtx.lineTo(W - PAD, 560);
-    bCtx.stroke();
-
-    // Section: Technical Capabilities Matrix
-    bCtx.fillStyle = colors.textTertiary;
-    bCtx.font = '600 16px "IBM Plex Mono", monospace';
-    bCtx.fillText('TECHNICAL CAPABILITIES', PAD, 595);
-
-    const capabilities = [
-      { tag: 'LANGUAGES', skills: 'TypeScript \u2022 Python \u2022 C++ \u2022 Java \u2022 SQL' },
-      { tag: 'WEB ARCHITECTURE', skills: 'React \u2022 Next.js \u2022 Tailwind CSS \u2022 Three.js' },
-      { tag: 'DATA & STATE', skills: 'PostgreSQL \u2022 MongoDB \u2022 Redis \u2022 Vector DBs' },
-      { tag: 'SYSTEMS & TOOLS', skills: 'Docker \u2022 Linux \u2022 Git \u2022 CI/CD Pipelines' },
-    ];
-
-    let capY = 640;
-    for (const cap of capabilities) {
-      bCtx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)';
-      bCtx.beginPath();
-      bCtx.roundRect(PAD, capY - 22, 190, 36, 4);
-      bCtx.fill();
-      bCtx.strokeStyle = colors.hairlineBorder;
-      bCtx.lineWidth = 1;
-      bCtx.stroke();
-
-      bCtx.fillStyle = SWISS_RED;
-      bCtx.font = '600 13px "IBM Plex Mono", monospace';
-      bCtx.fillText(cap.tag, PAD + 14, capY);
-
-      bCtx.fillStyle = colors.textPrimary;
-      bCtx.font = '400 18px "IBM Plex Sans", sans-serif';
-      bCtx.fillText(cap.skills, PAD + 215, capY + 1);
-
-      capY += 56;
-    }
-
-    // Separator
-    bCtx.strokeStyle = colors.hairlineBorder;
-    bCtx.lineWidth = 1;
-    bCtx.beginPath();
-    bCtx.moveTo(PAD, capY + 15);
-    bCtx.lineTo(W - PAD, capY + 15);
-    bCtx.stroke();
-
-    // Section: Academic Record
-    const eduY = capY + 50;
-    bCtx.fillStyle = colors.textTertiary;
-    bCtx.font = '600 16px "IBM Plex Mono", monospace';
-    bCtx.fillText('ACADEMIC RECORD', PAD, eduY);
-
-    bCtx.fillStyle = colors.textPrimary;
-    bCtx.font = '600 22px "IBM Plex Sans", sans-serif';
-    bCtx.fillText('Universitas Bina Insani \u2014 S1 Sistem Informasi', PAD, eduY + 45);
-
+    bCtx.textAlign = 'right';
     bCtx.fillStyle = colors.textSecondary;
-    bCtx.font = '400 17px "IBM Plex Mono", monospace';
-    bCtx.fillText('2024 \u2014 PRESENT  \u2022  BEKASI, INDONESIA', PAD, eduY + 75);
+    bCtx.font = '500 13px "IBM Plex Mono", monospace';
+    bCtx.fillText('INDEX 2026', W - PAD, 111);
+    bCtx.textAlign = 'left';
 
-    bCtx.fillStyle = colors.textPrimary;
-    bCtx.font = '600 20px "IBM Plex Sans", sans-serif';
-    bCtx.fillText('SMK Teknologi Nasional \u2014 Teknik Komputer & Jaringan', PAD, eduY + 130);
-
-    bCtx.fillStyle = colors.textSecondary;
-    bCtx.font = '400 17px "IBM Plex Mono", monospace';
-    bCtx.fillText('2021 \u2014 2024  \u2022  NETWORKING & INFRASTRUCTURE', PAD, eduY + 160);
-
-    // Separator
     bCtx.strokeStyle = colors.hairlineBorder;
     bCtx.lineWidth = 1;
     bCtx.beginPath();
-    bCtx.moveTo(PAD, eduY + 200);
-    bCtx.lineTo(W - PAD, eduY + 200);
+    bCtx.moveTo(PAD, 136);
+    bCtx.lineTo(W - PAD, 136);
     bCtx.stroke();
 
-    // Section: Footer Verification & Contact
-    const footerY = eduY + 240;
-    bCtx.fillStyle = colors.textTertiary;
-    bCtx.font = '600 14px "IBM Plex Mono", monospace';
-    bCtx.fillText('PUBLIC COMMUNICATIONS', PAD, footerY);
-
+    // Section 1: Selected Projects
+    const py = 165;
     bCtx.fillStyle = colors.textPrimary;
-    bCtx.font = '500 18px "IBM Plex Mono", monospace';
-    bCtx.fillText('ahmadbadawi.dev', PAD, footerY + 36);
-    bCtx.fillText('github.com/ahmadbadawi', PAD, footerY + 72);
-    bCtx.fillText('ahmadbadawi.biu.si@gmail.com', PAD, footerY + 108);
+    bCtx.font = '700 28px "IBM Plex Sans", -apple-system, sans-serif';
+    bCtx.fillText('SELECTED PROJECTS', PAD, py);
 
     bCtx.fillStyle = colors.textTertiary;
     bCtx.font = '500 13px "IBM Plex Mono", monospace';
-    bCtx.fillText('BADGE NO: AB-2024-UBI-08492', PAD, footerY + 155);
+    bCtx.fillText('CORE OPEN-SOURCE REPOSITORIES', PAD, py + 24);
 
-    drawQrCode(bCtx, W - PAD - 150, footerY - 10, 150, isDark ? '#fafaf9' : '#18171a');
+    bCtx.strokeStyle = colors.hairlineBorder;
+    bCtx.beginPath();
+    bCtx.moveTo(PAD, py + 38);
+    bCtx.lineTo(W - PAD, py + 38);
+    bCtx.stroke();
 
-    bCtx.fillStyle = colors.textTertiary;
-    bCtx.font = '500 11px "IBM Plex Mono", monospace';
-    bCtx.textAlign = 'right';
-    bCtx.fillText('SCAN TO VERIFY KEYS', W - PAD, footerY + 165);
-    bCtx.textAlign = 'left';
-
-    // Bottom Swiss Red stripe
     bCtx.fillStyle = SWISS_RED;
-    bCtx.fillRect(PAD, H - 46, W - PAD * 2, 4);
+    bCtx.fillRect(PAD, py + 37, 44, 3);
+
+    let curProjY = py + 60;
+    FEATURED_PROJECTS.forEach((proj) => {
+      bCtx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.025)';
+      bCtx.beginPath();
+      bCtx.roundRect(PAD, curProjY - 10, W - PAD * 2, 78, 8);
+      bCtx.fill();
+      bCtx.strokeStyle = colors.hairlineBorder;
+      bCtx.stroke();
+
+      bCtx.fillStyle = SWISS_RED;
+      bCtx.font = '700 16px "IBM Plex Mono", monospace';
+      bCtx.fillText(proj.number, PAD + 18, curProjY + 22);
+
+      bCtx.fillStyle = colors.textPrimary;
+      bCtx.font = '600 19px "IBM Plex Sans", -apple-system, sans-serif';
+      bCtx.fillText(proj.title, PAD + 62, curProjY + 22);
+
+      bCtx.textAlign = 'right';
+      bCtx.fillStyle = colors.textTertiary;
+      bCtx.font = '500 11px "IBM Plex Mono", monospace';
+      bCtx.fillText(proj.classification.en.toUpperCase(), W - PAD - 18, curProjY + 22);
+      bCtx.textAlign = 'left';
+
+      const cleanRepo = proj.githubUrl.replace('https://', '');
+      bCtx.fillStyle = colors.textSecondary;
+      bCtx.font = '400 13px "IBM Plex Mono", monospace';
+      bCtx.fillText(cleanRepo, PAD + 62, curProjY + 48);
+
+      curProjY += 92;
+    });
+
+    // More projects CTA
+    bCtx.fillStyle = SWISS_RED;
+    bCtx.fillRect(PAD, curProjY + 4, 6, 18);
+    bCtx.fillStyle = colors.textPrimary;
+    bCtx.font = '600 15px "IBM Plex Sans", -apple-system, sans-serif';
+    bCtx.fillText('MORE REPOSITORIES \u2192', PAD + 16, curProjY + 18);
+
+    const cleanProfile = GITHUB_PROFILE_URL.replace('https://', '');
+    bCtx.fillStyle = colors.textSecondary;
+    bCtx.font = '500 13px "IBM Plex Mono", monospace';
+    bCtx.fillText(cleanProfile, PAD + 195, curProjY + 18);
+
+    // Section 2: Technical Competencies
+    const techY = curProjY + 54;
+    bCtx.strokeStyle = colors.hairlineBorder;
+    bCtx.beginPath();
+    bCtx.moveTo(PAD, techY);
+    bCtx.lineTo(W - PAD, techY);
+    bCtx.stroke();
+
+    bCtx.fillStyle = colors.textPrimary;
+    bCtx.font = '700 22px "IBM Plex Sans", -apple-system, sans-serif';
+    bCtx.fillText('TECHNICAL COMPETENCIES', PAD, techY + 32);
+
+    bCtx.fillStyle = colors.textSecondary;
+    bCtx.font = '500 14px "IBM Plex Mono", monospace';
+    bCtx.fillText('React \u2022 TypeScript \u2022 Next.js \u2022 Python \u2022 Three.js \u2022 Tailwind', PAD, techY + 62);
+    bCtx.fillText('Applied AI \u2022 Computer Vision \u2022 RESTful APIs \u2022 Git Workflow', PAD, techY + 86);
+
+    // Section 3: Channels & Connect
+    const commY = techY + 120;
+    bCtx.strokeStyle = colors.hairlineBorder;
+    bCtx.beginPath();
+    bCtx.moveTo(PAD, commY);
+    bCtx.lineTo(W - PAD, commY);
+    bCtx.stroke();
+
+    bCtx.fillStyle = colors.textPrimary;
+    bCtx.font = '700 22px "IBM Plex Sans", -apple-system, sans-serif';
+    bCtx.fillText('CONNECT & CHANNELS', PAD, commY + 32);
+
+    const channels = [
+      { label: 'GITHUB', value: SOCIAL_LINKS.github.label },
+      { label: 'LINKEDIN', value: SOCIAL_LINKS.linkedin.label },
+      { label: 'EMAIL', value: SOCIAL_LINKS.email.label },
+    ];
+
+    let rowY = commY + 62;
+    channels.forEach((ch) => {
+      bCtx.font = '600 11px "IBM Plex Mono", monospace';
+      bCtx.fillStyle = colors.textTertiary;
+      bCtx.fillText(ch.label, PAD, rowY);
+
+      bCtx.font = '500 14px "IBM Plex Mono", monospace';
+      bCtx.fillStyle = colors.textPrimary;
+      bCtx.fillText(ch.value, PAD + 120, rowY);
+
+      bCtx.strokeStyle = colors.hairlineBorder;
+      bCtx.beginPath();
+      bCtx.moveTo(PAD, rowY + 12);
+      bCtx.lineTo(W - PAD, rowY + 12);
+      bCtx.stroke();
+
+      rowY += 36;
+    });
+
+    // Section 4: QR Code & Signature
+    const footerY = 1320;
+    const qrSize = 125;
+    const qrX = W - PAD - qrSize;
+    drawQrCode(bCtx, qrX, footerY, qrSize, isDark ? '#fafaf9' : '#141416');
+
+    bCtx.fillStyle = colors.textPrimary;
+    bCtx.font = '700 18px "IBM Plex Sans", -apple-system, sans-serif';
+    bCtx.fillText('AHMAD BADAWI', PAD, footerY + 28);
+
+    bCtx.fillStyle = colors.textSecondary;
+    bCtx.font = '400 14px "IBM Plex Sans", -apple-system, sans-serif';
+    bCtx.fillText(`Software Developer \u2022 ${IDENTITY_DATA.institution}`, PAD, footerY + 54);
+    bCtx.fillText('Bekasi, West Java, Indonesia', PAD, footerY + 76);
+
+    bCtx.fillStyle = SWISS_RED;
+    bCtx.font = '600 12px "IBM Plex Mono", monospace';
+    bCtx.fillText('SCAN TO VIEW LIVE PORTFOLIO & CODE REPOSITORIES', PAD, footerY + 112);
+
+    bCtx.fillStyle = SWISS_RED;
+    bCtx.fillRect(PAD, H - 48, W - PAD * 2, 3.5);
 
     frontTexture.needsUpdate = true;
     backTexture.needsUpdate = true;
@@ -610,15 +587,30 @@ export const LanyardCard: React.FC<LanyardCardProps> = ({
   useEffect(() => {
     if (!canvasesRef.current) return;
     const { portraitImg } = canvasesRef.current;
-    const handleLoad = () => {
-      drawCardFaces.current();
+    let isMounted = true;
+
+    const redraw = () => {
+      if (isMounted) {
+        drawCardFaces.current();
+      }
     };
-    portraitImg.onload = handleLoad;
-    drawCardFaces.current();
+
+    portraitImg.onload = redraw;
+
+    if (typeof document !== 'undefined' && document.fonts) {
+      document.fonts.ready.then(redraw).catch(() => {});
+    }
+
+    redraw();
+
+    return () => {
+      isMounted = false;
+      portraitImg.onload = null;
+    };
   }, [theme]);
 
   // ---------------------------------------------------------------------------
-  // 3D Physical Geometry & Materials (React Bits Lanyard Structure)
+  // 3D Physical Geometry & Materials
   // ---------------------------------------------------------------------------
 
   // Physical ID Card: Rounded Box Geometry with real thickness and beveled corners
@@ -636,69 +628,84 @@ export const LanyardCard: React.FC<LanyardCardProps> = ({
 
   // Recessed dark badge punch slot insert
   const punchSlotGeometry = useMemo(
-    () => new THREE.BoxGeometry(0.32, 0.06, CARD_THICKNESS + 0.002),
+    () => new THREE.BoxGeometry(0.24, 0.045, CARD_THICKNESS + 0.002),
     [],
   );
 
-  // Hardware: Strap crimp clamp (metal sleeve holding the folded ribbon loop)
-  const strapCrimpGeometry = useMemo(
-    () => new THREE.BoxGeometry(0.30, 0.08, 0.045),
+  // Hardware A: Clamp jaws that grip the card around the punch slot
+  const clipPlateGeometry = useMemo(
+    () => new RoundedBoxGeometry(0.16, 0.10, 0.02, 3, 0.005),
     [],
   );
 
-  // Hardware: Folded fabric loop wrapping through the top of the metal ring
-  const strapLoopGeometry = useMemo(
-    () => new THREE.TorusGeometry(0.065, 0.018, 12, 24),
+  // Hardware B: Cross-locking rivet pin through the punch slot
+  const clipPinGeometry = useMemo(
+    () => new THREE.CylinderGeometry(0.012, 0.012, 0.06, 20),
     [],
   );
 
-  // Hardware: Real 3D Metal Ring (Torus with thickness, hole, and bevel)
-  const metalRingGeometry = useMemo(
-    () => new THREE.TorusGeometry(0.095, 0.020, 20, 36),
+  // Hardware C: Swivel neck base collar seated on the clamp
+  const clipNeckGeometry = useMemo(
+    () => new THREE.CylinderGeometry(0.022, 0.022, 0.05, 24),
     [],
   );
 
-  // Hardware: Swivel Eyelet connecting to ring
-  const swivelEyeletGeometry = useMemo(
-    () => new THREE.TorusGeometry(0.045, 0.012, 16, 24),
-    [],
-  );
-
-  // Hardware: Swivel Barrel & Pivot Hinge
+  // Hardware C2: Machined swivel barrel body
   const swivelBarrelGeometry = useMemo(
-    () => new THREE.CylinderGeometry(0.035, 0.035, 0.065, 20),
-    [],
-  );
-  const clipHingePinGeometry = useMemo(
-    () => new THREE.CylinderGeometry(0.016, 0.016, 0.08, 16),
+    () => new THREE.CylinderGeometry(0.026, 0.026, 0.05, 24),
     [],
   );
 
-  // Hardware: Badge Clip Jaws clamping the top of the card
-  const clipJawGeometry = useMemo(
-    () => new THREE.BoxGeometry(0.28, 0.14, 0.024),
+  // Hardware C3: Swivel top flange / thrust washer
+  const swivelFlangeGeometry = useMemo(
+    () => new THREE.CylinderGeometry(0.033, 0.033, 0.012, 24),
     [],
   );
 
-  // Hardware: Clip tongue passing through the card punch slot
-  const clipTongueGeometry = useMemo(
-    () => new THREE.BoxGeometry(0.12, 0.10, 0.020),
+  // Hardware D: Eyelet link joining the swivel flange to the ring
+  const ringLinkGeometry = useMemo(
+    () => new RoundedBoxGeometry(0.05, 0.055, 0.024, 3, 0.006),
     [],
   );
 
-  // Tactile 3D Physical EMV Smart Chip plate (flush on card front)
-  const chip3DGeometry = useMemo(
-    () => new THREE.BoxGeometry(0.25, 0.18, 0.003),
+  // Hardware E: Machined attachment ring (chamfered annulus) centred precisely
+  // at CARD_CLIP_OFFSET_Y (1.70) — the physical spherical-joint pivot point.
+  const clipRingGeometry = useMemo(() => {
+    const outerRadius = 0.075;
+    const innerRadius = 0.048;
+    const shape = new THREE.Shape();
+    shape.absarc(0, 0, outerRadius, 0, Math.PI * 2, false);
+
+    const hole = new THREE.Path();
+    hole.absarc(0, 0, innerRadius, 0, Math.PI * 2, true);
+    shape.holes.push(hole);
+
+    const geo = new THREE.ExtrudeGeometry(shape, {
+      depth: 0.02,
+      bevelEnabled: true,
+      bevelThickness: 0.0045,
+      bevelSize: 0.0045,
+      bevelSegments: 2,
+      curveSegments: 32,
+    });
+    geo.center();
+    return geo;
+  }, []);
+
+  // Hardware F: Folded strap hem crimped inside a metal ferrule through the ring
+  const strapFerruleGeometry = useMemo(
+    () => new RoundedBoxGeometry(0.10, 0.052, 0.026, 3, 0.008),
     [],
   );
 
-  // Materials
+  // Materials — brushed satin metal: a slightly rougher, less mirror-like finish
+  // so the machined arrises catch the studio key/rim lights with clear structure.
   const metalMaterial = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
         color: METAL_CLIP_COLOR,
-        roughness: 0.25,
-        metalness: 0.88,
+        roughness: 0.32,
+        metalness: 0.8,
       }),
     [],
   );
@@ -706,7 +713,7 @@ export const LanyardCard: React.FC<LanyardCardProps> = ({
   const strapLoopMaterial = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: 0x161517,
+        color: STRAP_BASE_COLOR,
         roughness: 0.85,
         metalness: 0.0,
       }),
@@ -723,22 +730,12 @@ export const LanyardCard: React.FC<LanyardCardProps> = ({
     [isDark],
   );
 
-  const chipGoldMaterial = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: '#dfc15d',
-        roughness: 0.22,
-        metalness: 0.88,
-      }),
-    [],
-  );
-
   const edgeMaterial = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
         color: isDark ? THEME_COLORS.dark.edgeColor : THEME_COLORS.light.edgeColor,
-        roughness: 0.45,
-        metalness: 0.05,
+        roughness: 0.42,
+        metalness: 0.04,
       }),
     [isDark],
   );
@@ -747,8 +744,8 @@ export const LanyardCard: React.FC<LanyardCardProps> = ({
     () =>
       new THREE.MeshStandardMaterial({
         map: frontTexture,
-        roughness: 0.32,
-        metalness: 0.03,
+        roughness: 0.38,
+        metalness: 0.04,
       }),
     [frontTexture],
   );
@@ -757,8 +754,8 @@ export const LanyardCard: React.FC<LanyardCardProps> = ({
     () =>
       new THREE.MeshStandardMaterial({
         map: backTexture,
-        roughness: 0.32,
-        metalness: 0.03,
+        roughness: 0.38,
+        metalness: 0.04,
       }),
     [backTexture],
   );
@@ -782,19 +779,17 @@ export const LanyardCard: React.FC<LanyardCardProps> = ({
       backTexture.dispose();
       cardGeometry.dispose();
       punchSlotGeometry.dispose();
-      strapCrimpGeometry.dispose();
-      strapLoopGeometry.dispose();
-      metalRingGeometry.dispose();
-      swivelEyeletGeometry.dispose();
+      clipPlateGeometry.dispose();
+      clipPinGeometry.dispose();
+      clipNeckGeometry.dispose();
       swivelBarrelGeometry.dispose();
-      clipHingePinGeometry.dispose();
-      clipJawGeometry.dispose();
-      clipTongueGeometry.dispose();
-      chip3DGeometry.dispose();
+      swivelFlangeGeometry.dispose();
+      ringLinkGeometry.dispose();
+      clipRingGeometry.dispose();
+      strapFerruleGeometry.dispose();
       metalMaterial.dispose();
       strapLoopMaterial.dispose();
       punchSlotMaterial.dispose();
-      chipGoldMaterial.dispose();
       edgeMaterial.dispose();
       frontMaterial.dispose();
       backMaterial.dispose();
@@ -804,19 +799,17 @@ export const LanyardCard: React.FC<LanyardCardProps> = ({
     backTexture,
     cardGeometry,
     punchSlotGeometry,
-    strapCrimpGeometry,
-    strapLoopGeometry,
-    metalRingGeometry,
-    swivelEyeletGeometry,
+    clipPlateGeometry,
+    clipPinGeometry,
+    clipNeckGeometry,
     swivelBarrelGeometry,
-    clipHingePinGeometry,
-    clipJawGeometry,
-    clipTongueGeometry,
-    chip3DGeometry,
+    swivelFlangeGeometry,
+    ringLinkGeometry,
+    clipRingGeometry,
+    strapFerruleGeometry,
     metalMaterial,
     strapLoopMaterial,
     punchSlotMaterial,
-    chipGoldMaterial,
     edgeMaterial,
     frontMaterial,
     backMaterial,
@@ -836,78 +829,71 @@ export const LanyardCard: React.FC<LanyardCardProps> = ({
       <mesh
         geometry={punchSlotGeometry}
         material={punchSlotMaterial}
-        position={[0, CARD_HEIGHT / 2 - 0.08, 0]}
-      />
-
-      {/* Tactile 3D Physical EMV Smart Chip (aligned with front graphics) */}
-      <mesh
-        geometry={chip3DGeometry}
-        material={chipGoldMaterial}
-        position={[-0.75, -0.42, CARD_THICKNESS / 2 + 0.0016]}
-      />
-
-      {/* ------------------------------------------------------------------- */}
-      {/* 2. Hardware Attachment Hierarchy (React Bits Lanyard Structure)     */}
-      {/* ------------------------------------------------------------------- */}
-
-      {/* A. Card Clip Jaws (clamped over top edge of card into punch slot) */}
-      {/* Front Jaw */}
-      <mesh
-        geometry={clipJawGeometry}
-        material={metalMaterial}
-        position={[0, CARD_HEIGHT / 2 - 0.03, 0.028]}
-      />
-      {/* Back Jaw */}
-      <mesh
-        geometry={clipJawGeometry}
-        material={metalMaterial}
-        position={[0, CARD_HEIGHT / 2 - 0.03, -0.028]}
-      />
-      {/* Clip tongue through card punch slot */}
-      <mesh
-        geometry={clipTongueGeometry}
-        material={metalMaterial}
         position={[0, CARD_HEIGHT / 2 - 0.07, 0]}
       />
 
-      {/* B. Clip Body, Hinge Pin & Swivel Connector */}
+      {/* ------------------------------------------------------------------- */}
+      {/* 2. Mechanical Attachment Chain                                      */}
+      {/*    STRAP → CRIMP FERRULE → MACHINED RING → EYELET LINK →            */}
+      {/*    SWIVEL FLANGE → SWIVEL BARREL → CLAMP JAWS → CARD                */}
+      {/* ------------------------------------------------------------------- */}
+
+      {/* A. Clamp jaws gripping the card around the punch slot */}
       <mesh
-        geometry={clipHingePinGeometry}
+        geometry={clipPlateGeometry}
         material={metalMaterial}
-        position={[0, CARD_HEIGHT / 2 + 0.04, 0]}
+        position={[0, CARD_HEIGHT / 2 - 0.02, 0.026]}
+      />
+      <mesh
+        geometry={clipPlateGeometry}
+        material={metalMaterial}
+        position={[0, CARD_HEIGHT / 2 - 0.02, -0.026]}
+      />
+
+      {/* B. Cross-locking rivet pin through the punch slot */}
+      <mesh
+        geometry={clipPinGeometry}
+        material={metalMaterial}
+        position={[0, CARD_HEIGHT / 2 - 0.07, 0]}
         rotation={[Math.PI / 2, 0, 0]}
+      />
+
+      {/* C. Swivel assembly: neck collar → barrel → top flange */}
+      <mesh
+        geometry={clipNeckGeometry}
+        material={metalMaterial}
+        position={[0, CARD_HEIGHT / 2 + 0.02, 0]}
       />
       <mesh
         geometry={swivelBarrelGeometry}
         material={metalMaterial}
-        position={[0, CARD_HEIGHT / 2 + 0.08, 0]}
+        position={[0, CARD_HEIGHT / 2 + 0.075, 0]}
       />
       <mesh
-        geometry={swivelEyeletGeometry}
+        geometry={swivelFlangeGeometry}
         material={metalMaterial}
-        position={[0, CARD_HEIGHT / 2 + 0.125, 0]}
+        position={[0, CARD_HEIGHT / 2 + 0.105, 0]}
       />
 
-      {/* C. Real 3D Metal Ring (Centered at CARD_CLIP_OFFSET_Y = 1.70) */}
+      {/* D. Eyelet link bridging the swivel flange to the ring */}
       <mesh
-        geometry={metalRingGeometry}
+        geometry={ringLinkGeometry}
         material={metalMaterial}
-        position={[0, CARD_HEIGHT / 2 + 0.20, 0]}
+        position={[0, CARD_CLIP_OFFSET_Y - 0.065, 0]}
       />
 
-      {/* D. Strap Loop (Fabric ribbon wrapping through top of metal ring) */}
+      {/* E. Machined attachment ring centred at CARD_CLIP_OFFSET_Y (1.70) */}
       <mesh
-        geometry={strapLoopGeometry}
+        geometry={clipRingGeometry}
+        material={metalMaterial}
+        position={[0, CARD_CLIP_OFFSET_Y, 0]}
+      />
+
+      {/* F. Folded strap hem crimped inside a ferrule threading through the ring */}
+      <mesh
+        geometry={strapFerruleGeometry}
         material={strapLoopMaterial}
-        position={[0, CARD_HEIGHT / 2 + 0.23, 0]}
-        rotation={[0, Math.PI / 2, 0]}
-      />
-
-      {/* E. Strap Crimp Ferrule (Metal clamp sleeve securing the ribbon loop) */}
-      <mesh
-        geometry={strapCrimpGeometry}
-        material={metalMaterial}
-        position={[0, CARD_HEIGHT / 2 + 0.27, 0]}
+        position={[0, CARD_CLIP_OFFSET_Y + 0.1, 0]}
       />
     </group>
   );

@@ -226,3 +226,22 @@ body {
 .swiss-surface      { background-color: var(--color-surface); }
 .swiss-surface-2    { background-color: var(--color-surface-2); }
 .swiss-border       { border-color: var(--color-border); }
+
+/* ─── Reduced Motion ───────────────────────────────────────────── */
+/* Respect the user's OS preference: collapse CSS transitions/animations.
+   JS-driven motion systems (motion/Framer) already branch on
+   useReducedMotion, and interaction (click / Space) stays fully functional. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

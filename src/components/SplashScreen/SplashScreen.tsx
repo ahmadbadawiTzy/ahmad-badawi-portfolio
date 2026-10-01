@@ -1,18 +1,46 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { motion } from 'motion/react';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface SplashScreenProps {
   onComplete?: () => void;
 }
 
+/**
+ * SplashScreen — Swiss editorial intro sequence.
+ *
+ * Motion refinement only: the layout, typography, palette and composition are
+ * unchanged. The opening/closing choreography is driven by `motion` springs and
+ * a luxury ease curve so the reveal reads as one continuous, physical gesture
+ * rather than a set of linear CSS switches.
+ */
+
+// Signature Swiss luxury ease — controlled anticipation, long settle.
+const ENTER_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+// Accelerating exit curve — the overlay lifts cleanly off the page.
+const EXIT_EASE: [number, number, number, number] = [0.76, 0, 0.24, 1];
+
+// Spring tuned for a premium card: fast attack, minimal overshoot, no wobble.
+const REVEAL_SPRING = {
+  type: 'spring',
+  stiffness: 95,
+  damping: 22,
+  mass: 1,
+} as const;
+
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const { t } = useLanguage();
 
-  // Phase states: 'enter' (reveal text) -> 'ready' -> 'exit' (wipe up) -> 'done'
+  // Phase states: 'enter' -> 'reveal' -> 'exit' -> 'done'
   const [phase, setPhase] = useState<'enter' | 'reveal' | 'exit' | 'done'>('enter');
   const [isReducedMotion, setIsReducedMotion] = useState(false);
+  const finishedRef = useRef(false);
 
   const finishSplash = useCallback(() => {
+    // Idempotent: guards against the exit animation and the backstop timer
+    // both resolving the sequence (prevents double onComplete + stuck states).
+    if (finishedRef.current) return;
+    finishedRef.current = true;
     setPhase('done');
     try {
       sessionStorage.setItem('ab_splash_shown', 'true');
@@ -26,12 +54,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   }, [onComplete]);
 
   const triggerExit = useCallback(() => {
-    if (phase === 'exit' || phase === 'done') return;
-    setPhase('exit');
-    setTimeout(() => {
-      finishSplash();
-    }, 450);
-  }, [phase, finishSplash]);
+    setPhase((prev) => (prev === 'enter' || prev === 'reveal' ? 'exit' : prev));
+  }, []);
 
   useEffect(() => {
     // Check if reload or already displayed in session
@@ -59,32 +83,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       // Continue if performance or storage fails
     }
 
-    // Check prefers-reduced-motion
-    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (reducedMotionQuery.matches) {
-      setIsReducedMotion(true);
-      const quickTimer = setTimeout(() => {
-        triggerExit();
-      }, 300);
-      return () => clearTimeout(quickTimer);
-    }
-
     document.body.style.overflow = 'hidden';
 
-    // Sequence timers for Swiss transition (~1.2s total)
-    const t1 = setTimeout(() => {
-      setPhase('reveal');
-    }, 50);
-
-    const t2 = setTimeout(() => {
-      setPhase('exit');
-    }, 1100);
-
-    const t3 = setTimeout(() => {
-      finishSplash();
-    }, 1550);
-
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Space is the documented trigger; Escape/Enter remain supported.
       if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         triggerExit();
@@ -93,14 +95,34 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
 
     window.addEventListener('keydown', handleKeyDown);
 
+    // Check prefers-reduced-motion — shorten the sequence but never disable it.
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let timers: number[] = [];
+
+    if (reducedMotionQuery.matches) {
+      setIsReducedMotion(true);
+      timers.push(window.setTimeout(() => triggerExit(), 300));
+    } else {
+      // Orchestrated sequence (~1.2s of held composition before the lift).
+      timers.push(window.setTimeout(() => setPhase('reveal'), 50));
+      timers.push(window.setTimeout(() => triggerExit(), 1100));
+    }
+
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
+      timers.forEach((id) => window.clearTimeout(id));
+      timers = [];
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
   }, [finishSplash, triggerExit]);
+
+  // Backstop: if the exit animation is interrupted (e.g. tab hidden mid-frame
+  // pauses rAF), still resolve the sequence so the page never gets stuck.
+  useEffect(() => {
+    if (phase !== 'exit') return;
+    const backstop = window.setTimeout(() => finishSplash(), 1400);
+    return () => window.clearTimeout(backstop);
+  }, [phase, finishSplash]);
 
   if (phase === 'done') {
     return null;
@@ -109,22 +131,46 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const isExiting = phase === 'exit';
   const isRevealing = phase === 'reveal' || phase === 'exit';
 
+  // Overlay: full-height mask wipe (desktop) / gentle fade (reduced motion).
+  const overlayInitial = isReducedMotion ? { opacity: 1 } : { y: '0%' };
+  const overlayAnimate = isExiting
+    ? isReducedMotion
+      ? { opacity: 0 }
+      : { y: '-100%' }
+    : isReducedMotion
+      ? { opacity: 1 }
+      : { y: '0%' };
+  const overlayTransition = isReducedMotion
+    ? { duration: 0.18, ease: 'easeOut' as const }
+    : isExiting
+      ? { duration: 0.8, ease: EXIT_EASE }
+      : { duration: 0.4, ease: ENTER_EASE };
+
+  // Shared helper builders keep every element's hidden/shown state symmetrical.
+  const fadeTransition = (delay: number) =>
+    isReducedMotion
+      ? { duration: 0.2, ease: 'easeOut' as const, delay: 0 }
+      : { duration: 0.6, ease: ENTER_EASE, delay };
+
+  const revealTransition = (delay: number) =>
+    isReducedMotion
+      ? { duration: 0.2, ease: 'easeOut' as const, delay: 0 }
+      : { ...REVEAL_SPRING, delay };
+
   return (
-    <div
+    <motion.div
       id="splash-screen"
       role="status"
       aria-label={t.splash.system}
       onClick={triggerExit}
-      className={`fixed inset-0 z-[100] flex flex-col justify-between p-6 sm:p-10 md:p-14 select-none cursor-pointer bg-stone-50 text-stone-900 dark:bg-stone-950 dark:text-stone-50 ${
-        isReducedMotion
-          ? `transition-opacity duration-200 ${
-              isExiting ? 'opacity-0 pointer-events-none' : 'opacity-100'
-            }`
-          : `transition-transform duration-500 will-change-transform ${
-              isExiting
-                ? '-translate-y-full pointer-events-none ease-[cubic-bezier(0.85,0,0.15,1)]'
-                : 'translate-y-0'
-            }`
+      initial={overlayInitial}
+      animate={overlayAnimate}
+      transition={overlayTransition}
+      onAnimationComplete={() => {
+        if (phase === 'exit') finishSplash();
+      }}
+      className={`fixed inset-0 z-[100] flex flex-col justify-between p-6 sm:p-10 md:p-14 select-none cursor-pointer bg-stone-50 text-stone-900 dark:bg-stone-950 dark:text-stone-50 will-change-transform ${
+        isExiting ? 'pointer-events-none' : ''
       }`}
     >
       {/* Top Technical Metadata Strip */}
@@ -146,48 +192,80 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       {/* Main Center Content: Architectural Swiss Identity */}
       <main className="w-full max-w-5xl mx-auto my-auto flex flex-col">
         {/* Eyebrow / Catalog Index */}
-        <div
-          className={`flex items-center gap-2 mb-3 sm:mb-4 transition-all duration-500 ease-out ${
-            isRevealing ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-          }`}
+        <motion.div
+          className="flex items-center gap-2 mb-3 sm:mb-4"
+          initial={isReducedMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
+          animate={
+            isRevealing
+              ? isReducedMotion
+                ? { opacity: 1 }
+                : { opacity: 1, y: 0 }
+              : isReducedMotion
+                ? { opacity: 0 }
+                : { opacity: 0, y: 10 }
+          }
+          transition={fadeTransition(0.05)}
         >
           <span className="w-1.5 h-1.5 bg-[#C8102E]"></span>
           <span className="text-[11px] font-mono tracking-widest uppercase text-stone-900/40 dark:text-stone-50/40">
             {t.splash.profiling}
           </span>
-        </div>
+        </motion.div>
 
         {/* Primary Name Display with Masked Clip Reveal */}
         <div className="overflow-hidden py-1">
-          <h1
-            className={`text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-light tracking-tight uppercase leading-none text-stone-900 dark:text-stone-50 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          <motion.h1
+            className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-light tracking-tight uppercase leading-none text-stone-900 dark:text-stone-50"
+            initial={isReducedMotion ? { opacity: 0 } : { y: '100%', opacity: 0 }}
+            animate={
               isRevealing
-                ? 'translate-y-0 opacity-100'
-                : 'translate-y-full opacity-0'
-            }`}
+                ? isReducedMotion
+                  ? { opacity: 1 }
+                  : { y: '0%', opacity: 1 }
+                : isReducedMotion
+                  ? { opacity: 0 }
+                  : { y: '100%', opacity: 0 }
+            }
+            transition={revealTransition(0.18)}
           >
             AHMAD<br />BADAWI
-          </h1>
+          </motion.h1>
         </div>
 
         {/* Architectural Accent Rule */}
-        <div
-          className={`w-12 h-0.5 bg-[#C8102E] my-6 transition-all duration-700 delay-150 ease-out origin-left ${
-            isRevealing ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
-          }`}
-        ></div>
+        <motion.div
+          className="w-12 h-0.5 bg-[#C8102E] my-6 origin-left"
+          initial={isReducedMotion ? { opacity: 0 } : { scaleX: 0, opacity: 0 }}
+          animate={
+            isRevealing
+              ? isReducedMotion
+                ? { opacity: 1 }
+                : { scaleX: 1, opacity: 1 }
+              : isReducedMotion
+                ? { opacity: 0 }
+                : { scaleX: 0, opacity: 0 }
+          }
+          transition={fadeTransition(0.4)}
+        ></motion.div>
 
         {/* Role Subtitle with Offset Timing */}
         <div className="overflow-hidden py-1">
-          <h2
-            className={`text-lg sm:text-2xl md:text-3xl font-light uppercase tracking-tight text-stone-900/70 dark:text-stone-50/70 transition-all duration-700 delay-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          <motion.h2
+            className="text-lg sm:text-2xl md:text-3xl font-light uppercase tracking-tight text-stone-900/70 dark:text-stone-50/70"
+            initial={isReducedMotion ? { opacity: 0 } : { y: '100%', opacity: 0 }}
+            animate={
               isRevealing
-                ? 'translate-y-0 opacity-100'
-                : 'translate-y-full opacity-0'
-            }`}
+                ? isReducedMotion
+                  ? { opacity: 1 }
+                  : { y: '0%', opacity: 1 }
+                : isReducedMotion
+                  ? { opacity: 0 }
+                  : { y: '100%', opacity: 0 }
+            }
+            transition={revealTransition(0.3)}
           >
             SOFTWARE DEVELOPER
-          </h2>
+          </motion.h2>
         </div>
       </main>
 
@@ -202,6 +280,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           [ {t.splash.skipHint} ]
         </div>
       </footer>
-    </div>
+    </motion.div>
   );
 };
